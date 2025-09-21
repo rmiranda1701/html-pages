@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Network Config Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #16213e 100%);
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+      margin-bottom: 3rem;
+      letter-spacing: -0.02em;
+    }
+
+    .contact-info {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      text-align: right;
+      backdrop-filter: blur(10px);
+      background: rgba(30, 41, 59, 0.3);
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(59, 130, 246, 0.1);
+      z-index: 1000;
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .container {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(59, 130, 246, 0.1);
+      border-radius: 16px;
+      padding: 2rem;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .container:hover {
+      border-color: rgba(59, 130, 246, 0.2);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .container h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #60a5fa;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.01em;
+    }
+
+    .clear-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: rgba(71, 85, 105, 0.8);
+      color: #e2e8f0;
+      border: 1px solid rgba(100, 116, 139, 0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .clear-btn:hover {
+      background: rgba(100, 116, 139, 0.8);
+      border-color: rgba(148, 163, 184, 0.4);
+      transform: translateY(-1px);
+    }
+
+    label {
+      display: block;
+      margin: 1rem 0 0.5rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      font-size: 0.9rem;
+    }
+
+    .checkbox-group {
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .checkbox-group.inline {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      margin: 0;
+      cursor: pointer;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid rgba(100, 116, 139, 0.2);
+      background: rgba(15, 23, 42, 0.4);
+      position: relative;
+      overflow: hidden;
+      font-weight: 500;
+      min-width: fit-content;
+    }
+
+    .checkbox-group label::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .checkbox-group label:hover {
+      background: rgba(59, 130, 246, 0.05);
+      border-color: rgba(59, 130, 246, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+
+    .checkbox-group label:hover::before {
+      left: 100%;
+    }
+
+    .checkbox-group label:has(input:checked) {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.1));
+      border-color: #3b82f6;
+      color: #60a5fa;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+    }
+
+    .option-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .option-content strong {
+      font-size: 0.95rem;
+      color: inherit;
+    }
+
+    .option-content small {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      line-height: 1.3;
+    }
+
+    .checkbox-group label:has(input:checked) .option-content small {
+      color: #93c5fd;
+    }
+
+    input[type="checkbox"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #64748b;
+      border-radius: 6px;
+      margin-right: 0.75rem;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(30, 41, 59, 0.8);
+    }
+
+    input[type="checkbox"]:checked {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      border-color: #3b82f6;
+      transform: scale(1.1);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    input[type="checkbox"]:checked::after {
+      content: "✓";
+      position: absolute;
+      top: -1px;
+      left: 3px;
+      font-size: 14px;
+      color: white;
+      font-weight: bold;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(100, 116, 139, 0.3);
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    input[type="number"]:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      align-items: center;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .copy-message {
+      color: #10b981;
+      font-size: 0.85rem;
+      font-weight: 500;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-left: 0.75rem;
+      transform: translateX(-10px);
+    }
+
+    .copy-message.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    pre {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(100, 116, 139, 0.2);
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      color: #e2e8f0;
+    }
+
+    .error {
+      color: #f87171;
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+      font-weight: 500;
+    }
+
+    /* Loading animation */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .container {
+      animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .container:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .main-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+      }
+      
+      .container {
+        padding: 1.5rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 1rem;
+      }
+      
+      .contact-info {
+        position: static;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+      
+      h1 {
+        font-size: 1.75rem;
+      }
+      
+      .checkbox-group.inline {
+        flex-direction: column;
+      }
+      
+      .button-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .copy-message {
+        text-align: center;
+        margin-left: 0;
+        margin-top: 0.5rem;
+      }
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(30, 41, 59, 0.3);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(59, 130, 246, 0.5);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(59, 130, 246, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <div class="contact-info">
+    Contact Rei Miranda<br>
+    for suggestions/corrections
+  </div>
+  
+  <h1>Network Configuration Generator</h1>
+  
+  <div class="main-container">
+    <!-- Switch Interface Config Generator -->
+    <div class="container">
+      <button class="clear-btn" onclick="clearOutput('config')">Clear</button>
+      <h2>Switch Interface Config Generator</h2>
+
+      <label>Choose an option:</label>
+      <div class="checkbox-group" id="menuGroup">
+        <label>
+          <input type="checkbox" name="menu" value="1"> 
+          <span class="option-content">
+            <strong>Bond Ports</strong>
+            <small>Removes a bond. Sets up a new device Unbonded</small>
+          </span>
+        </label>
+        <label>
+          <input type="checkbox" name="menu" value="2"> 
+          <span class="option-content">
+            <strong>Unbond Ports</strong>
+            <small>Remove bonding and configure single interface</small>
+          </span>
+        </label>
+        <label>
+          <input type="checkbox" name="menu" value="3"> 
+          <span class="option-content">
+            <strong>Fix Bond</strong>
+            <small>Delete old bond and create new bond configuration</small>
+          </span>
+        </label>
+      </div>
+
+      <label>Port Type:</label>
+      <div class="checkbox-group inline" id="portGroup">
+        <label><input type="checkbox" name="port" value="ge"> GE</label>
+        <label><input type="checkbox" name="port" value="xe"> XE</label>
+      </div>
+
+      <label for="number">Port Number (0–42):</label>
+      <input type="number" id="number" min="0" max="42" />
+      <div id="numberError" class="error"></div>
+
+      <label for="gateway">Gateway with CIDR (e.g. 192.168.0.1/31):</label>
+      <input type="text" id="gateway" />
+      <div id="gatewayError" class="error"></div>
+
+      <div class="button-row">
+        <button onclick="generateConfig()">Generate Config</button>
+        <button onclick="copyConfig()">Copy to Clipboard</button>
+        <span class="copy-message" id="configCopyMessage">Copied!</span>
+      </div>
+
+      <pre id="output"></pre>
+    </div>
+
+    <!-- Add Missing Filters -->
+    <div class="container">
+      <button class="clear-btn" onclick="clearOutput('filters')">Clear</button>
+      <h2>Add Missing Filters</h2>
+
+      <label>Port Type:</label>
+      <div class="checkbox-group inline" id="portTypeGroup">
+        <label><input type="checkbox" name="portType" value="ge"> GE</label>
+        <label><input type="checkbox" name="portType" value="xe"> XE</label>
+      </div>
+      <div id="portTypeError" class="error"></div>
+
+      <label for="portNumber2">Port Number (0–42):</label>
+      <input type="number" id="portNumber2" min="0" max="42">
+      <div id="portNumberError" class="error"></div>
+
+      <label>Bonded?</label>
+      <div class="checkbox-group inline" id="bondedGroup">
+        <label><input type="checkbox" name="bonded" value="yes"> Yes</label>
+        <label><input type="checkbox" name="bonded" value="no"> No</label>
+      </div>
+      <div id="bondError" class="error"></div>
+
+      <div class="button-row">
+        <button onclick="generateFilters()">Generate Filters</button>
+        <button onclick="copyFilters()">Copy to Clipboard</button>
+        <span class="copy-message" id="filtersCopyMessage">Copied!</span>
+      </div>
+
+      <pre id="filtersOutput"></pre>
+    </div>
+  </div>
+
+  <script>
+    // Ensure only one checkbox can be checked in each group for first generator
+    document.querySelectorAll('.checkbox-group').forEach(group => {
+      group.addEventListener('change', e => {
+        if (e.target.type === "checkbox") {
+          group.querySelectorAll('input[type="checkbox"]').forEach(box => {
+            if (box !== e.target) box.checked = false;
+          });
+        }
+      });
+    });
+
+    function validateGateway(gateway) {
+      const regex = /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/;
+      if (!regex.test(gateway)) return false;
+      const [ip, cidr] = gateway.split('/');
+      const parts = ip.split('.').map(Number);
+      if (parts.some(p => p < 0 || p > 255)) return false;
+      if (cidr < 26 || cidr > 31) return false;
+      return true;
+    }
+
+    function generateConfig() {
+      const menu = document.querySelector('input[name="menu"]:checked');
+      const port = document.querySelector('input[name="port"]:checked');
+      const number = parseInt(document.getElementById("number").value, 10);
+      const gateway = document.getElementById("gateway").value;
+      let valid = true;
+
+      document.getElementById("numberError").textContent = "";
+      document.getElementById("gatewayError").textContent = "";
+
+      if (!menu) {
+        alert("Please select an option (Bond, Unbond, Fix Bond).");
+        return;
+      }
+      if (!port) {
+        alert("Please select a Port Type (GE or XE).");
+        return;
+      }
+      if (isNaN(number) || number < 0 || number > 42) {
+        document.getElementById("numberError").textContent = "INVALID port number, please try again.";
+        valid = false;
+      }
+      if (!validateGateway(gateway)) {
+        document.getElementById("gatewayError").textContent = "INVALID gateway format, please try again. --For safety, don't go below /26 CIDR--";
+        valid = false;
+      }
+      if (!valid) return;
+
+      let output = "";
+      switch (menu.value) {
+        case "1":
+          output = `
+delete interfaces ${port.value}-0/0/${number}
+delete interfaces ${port.value}-1/0/${number}
+set interfaces ae${number} aggregated-ether-options lacp active
+set interfaces ae${number} aggregated-ether-options lacp periodic fast
+set interfaces ae${number} unit 0 family inet filter input P${number}
+set interfaces ae${number} unit 0 family inet address ${gateway}
+set interfaces ae${number} unit 0 family inet6 filter input P${number}_V6
+set interfaces ${port.value}-0/0/${number} ether-options auto-negotiation
+set interfaces ${port.value}-0/0/${number} ether-options 802.3ad ae${number}
+set interfaces ${port.value}-1/0/${number} ether-options auto-negotiation
+set interfaces ${port.value}-1/0/${number} ether-options 802.3ad ae${number}
+          `;
+          break;
+        case "2":
+          output = `
+delete interfaces ${port.value}-0/0/${number}
+delete interfaces ${port.value}-1/0/${number}
+delete interfaces ae${number}
+set interfaces ${port.value}-1/0/${number} disable
+set interfaces ${port.value}-0/0/${number} unit 0 family inet filter input P${number}
+set interfaces ${port.value}-0/0/${number} unit 0 family inet address ${gateway}
+set interfaces ${port.value}-0/0/${number} ether-options auto-negotiation
+set interfaces ${port.value}-0/0/${number} unit 0 family inet6 filter input P${number}_V6
+set interfaces ${port.value}-1/0/${number} ether-options auto-negotiation
+          `;
+          break;
+        case "3":
+          output = `
+delete interfaces ${port.value}-0/0/${number}
+delete interfaces ${port.value}-1/0/${number}
+delete interfaces ae${number}
+set interfaces ae${number} aggregated-ether-options lacp active
+set interfaces ae${number} aggregated-ether-options lacp periodic fast
+set interfaces ae${number} unit 0 family inet filter input P${number}
+set interfaces ae${number} unit 0 family inet address ${gateway}
+set interfaces ae${number} unit 0 family inet6 filter input P${number}_V6
+set interfaces ${port.value}-0/0/${number} ether-options auto-negotiation
+set interfaces ${port.value}-0/0/${number} ether-options 802.3ad ae${number}
+set interfaces ${port.value}-1/0/${number} ether-options auto-negotiation
+set interfaces ${port.value}-1/0/${number} ether-options 802.3ad ae${number}
+          `;
+          break;
+      }
+
+      document.getElementById("output").textContent = output.trim();
+    }
+
+    function copyConfig() {
+      const output = document.getElementById("output").textContent;
+      if (!output) {
+        alert("Nothing to copy! Generate a config first.");
+        return;
+      }
+      navigator.clipboard.writeText(output).then(() => {
+        showCopyMessage('configCopyMessage');
+      });
+    }
+
+    function generateFilters() {
+      const portType = document.querySelector('input[name="portType"]:checked');
+      const bonded = document.querySelector('input[name="bonded"]:checked');
+      const portNumber = document.getElementById("portNumber2").value;
+
+      // Clear errors
+      document.getElementById("portTypeError").textContent = "";
+      document.getElementById("portNumberError").textContent = "";
+      document.getElementById("bondError").textContent = "";
+
+      // Validation
+      if (!portType) {
+        document.getElementById("portTypeError").textContent = "Please select a port type.";
+        return;
+      }
+      if (!portNumber || portNumber < 0 || portNumber > 42) {
+        document.getElementById("portNumberError").textContent = "Invalid port number. Must be between 0–42.";
+        return;
+      }
+      if (!bonded) {
+        document.getElementById("bondError").textContent = "Please select bonded option.";
+        return;
+      }
+
+      const port = portType.value;
+      const number = portNumber;
+      const isBonded = bonded.value === "yes";
+
+      let set_0 = "";
+      if (isBonded) {
+        set_0 = `
+set interfaces ae${number} unit 0 family inet filter input P${number}
+set interfaces ae${number} unit 0 family inet6 filter input P${number}_V6`;
+      } else {
+        set_0 = `
+set interfaces ${port}-0/0/${number} unit 0 family inet filter input P${number}
+set interfaces ${port}-0/0/${number} unit 0 family inet6 filter input P${number}_V6`;
+      }
+      
+      const set_1 = `
+set firewall family inet6 filter P${number}_V6 term Deny-RFC4193 from destination-prefix-list RFC4193
+set firewall family inet6 filter P${number}_V6 term Deny-RFC4193 then discard
+set firewall family inet6 filter P${number}_V6 term Allow-IPs from source-prefix-list P${number}_V6
+set firewall family inet6 filter P${number}_V6 term Allow-IPs from source-prefix-list ipv6-linklocal
+set firewall family inet6 filter P${number}_V6 term Allow-IPs from source-prefix-list AE${number}_V6`;
+
+      const set_2 = `
+set firewall family inet6 filter P${number}_V6 term Allow-IPs then accept
+set firewall family inet6 filter P${number}_V6 term Deny-Rest then syslog
+set firewall family inet6 filter P${number}_V6 term Deny-Rest then discard
+set firewall family inet filter P${number} term Deny-RFC1918 from destination-prefix-list RFC1918
+set firewall family inet filter P${number} term Deny-RFC1918 then discard`;
+
+      const set_3 = `
+set firewall family inet filter P${number} term Allow-IPs from source-prefix-list P${number}
+set firewall family inet filter P${number} term Allow-IPs from source-prefix-list AE${number}
+set firewall family inet filter P${number} term Allow-IPs then accept
+set firewall family inet filter P${number} term Deny-Rest then syslog
+set firewall family inet filter P${number} term Deny-Rest then discard`;
+
+      const set_4 = `
+set policy-options prefix-list P${number} apply-path "interfaces ${port}-0/0/${number} unit <*> family inet address <*>"
+set policy-options prefix-list P${number}_V6 apply-path "interfaces ${port}-0/0/${number} unit <*> family inet6 address <*>"
+set policy-options prefix-list AE${number} apply-path "interfaces ae${number} unit <*> family inet address <*>"
+set policy-options prefix-list AE${number}_V6 apply-path "interfaces ae${number} unit <*> family inet6 address <*>"`;
+
+      const set_5 = `
+set policy-options prefix-list ipv6-linklocal fe80::/10
+set policy-options prefix-list RFC1918 10.0.0.0/8
+set policy-options prefix-list RFC1918 172.16.0.0/12
+set policy-options prefix-list RFC1918 192.168.0.0/16
+set policy-options prefix-list RFC4193 fc00::/7`;
+
+      document.getElementById("filtersOutput").textContent =
+        set_0 + "\n\n" + set_1 + "\n\n" + set_2 + "\n\n" + set_3 + "\n\n" + set_4 + "\n\n" + set_5;
+    }
+
+    function copyFilters() {
+      const output = document.getElementById("filtersOutput").textContent;
+      if (!output) {
+        alert("Nothing to copy! Generate filters first.");
+        return;
+      }
+      navigator.clipboard.writeText(output).then(() => {
+        showCopyMessage('filtersCopyMessage');
+      });
+    }
+
+    function showCopyMessage(messageId) {
+      const message = document.getElementById(messageId);
+      message.classList.add('show');
+      setTimeout(() => {
+        message.classList.remove('show');
+      }, 2000);
+    }
+
+    function clearOutput(type) {
+      if (type === 'config') {
+        // Clear output and message
+        document.getElementById("output").textContent = "";
+        document.getElementById("configCopyMessage").classList.remove('show');
+        
+        // Clear all checkboxes in config section
+        document.querySelectorAll('input[name="menu"]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('input[name="port"]').forEach(cb => cb.checked = false);
+        
+        // Clear input fields
+        document.getElementById("number").value = "";
+        document.getElementById("gateway").value = "";
+        
+        // Clear error messages
+        document.getElementById("numberError").textContent = "";
+        document.getElementById("gatewayError").textContent = "";
+        
+      } else if (type === 'filters') {
+        // Clear output and message
+        document.getElementById("filtersOutput").textContent = "";
+        document.getElementById("filtersCopyMessage").classList.remove('show');
+        
+        // Clear all checkboxes in filters section
+        document.querySelectorAll('input[name="portType"]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('input[name="bonded"]').forEach(cb => cb.checked = false);
+        
+        // Clear input field
+        document.getElementById("portNumber2").value = "";
+        
+        // Clear error messages
+        document.getElementById("portTypeError").textContent = "";
+        document.getElementById("portNumberError").textContent = "";
+        document.getElementById("bondError").textContent = "";
+      }
+    }
+  </script>
+</body>
+</html>
