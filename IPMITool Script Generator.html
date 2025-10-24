@@ -742,7 +742,7 @@
             });
 
             script += '# Array of host labels (to loop over)\n';
-            script += `hosts=(${hosts.map((_, i) => i + 1).join(' ')})\n\n`;
+            script += `hosts=(${validatedHosts.map((_, i) => i + 1).join(' ')})\n\n`;
 
             switch(selectedOption) {
                 case '1':
