@@ -563,6 +563,8 @@
                 <button class="option-btn" data-option="4">Change Password</button>
                 <button class="option-btn" data-option="5">Power Cycle -> BIOS</button>
                 <button class="option-btn" data-option="7">MC Reset Cold</button>
+                <button class="option-btn" data-option="10">AsRock Create Operator User</button>
+                <button class="option-btn" data-option="11">Dell Create Operator User</button>
                 
                 
                 
@@ -580,10 +582,10 @@
             <div id="hosts-container">
                 <div class="host-row normal">
                     <span class="device-number">1</span>
-                    <input type="text" class="host-ip" placeholder="8.8.8.8">
-                    <input type="text" class="username" placeholder="root">
-                    <input type="text" class="password" placeholder="calvin">
-                    <input type="text" class="new-password hidden" placeholder="NEW Password">
+                    <input type="text" class="host-ip" placeholder="8.8.8.8" oninput="this.value=this.value.trim()">
+                    <input type="text" class="username" placeholder="root" oninput="this.value=this.value.trim()">
+                    <input type="text" class="password" placeholder="calvin" oninput="this.value=this.value.trim()">
+                    <input type="text" class="new-password hidden" placeholder="NEW Password" oninput="this.value=this.value.trim()">
                     <button class="add-btn" onclick="addHost()">+</button>
                 </div>
             </div>
@@ -727,16 +729,17 @@
 
             if (!isValid) return;
 
+            
             let script = '#!/bin/bash\n\n';
             script += '# Declare each host with its own user and password\n';
             
             validatedHosts.forEach((host, index) => {
                 const num = index + 1;
-                script += `host${num}="${host.ip}"\n`;
-                script += `user${num}="${host.username}"\n`;
-                script += `pass${num}="${host.password}"\n`;
+                script += `host${num}='${host.ip}'\n`;
+                script += `user${num}='${host.username}'\n`;
+                script += `pass${num}='${host.password}'\n`;
                 if (selectedOption === '4') {
-                    script += `NEWpass${num}="${host.newPassword}"\n`;
+                    script += `NEWpass${num}='${host.newPassword}'\n`;
                 }
                 script += '\n';
             });
@@ -771,7 +774,13 @@
                     break;      
                 case '9':
                     script += generateMotherboardInfoSHORTScript();
-                    break;           
+                    break;   
+                case '10':
+                    script += generateAsRockUserScript();
+                    break;
+                case '11':
+                    script += generateDellUserScript();
+                    break;
             }
 
             document.getElementById('output').textContent = script;
@@ -876,7 +885,7 @@ for i in "\${hosts[@]}"; do
     continue
   fi
 
-  ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$OLD_PASS" user set password "$USER_ID" "$NEW_PASS" &>/dev/null
+  ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$OLD_PASS" user set password "$USER_ID" '$NEW_PASS' &>/dev/null
 
   if [ $? -eq 0 ]; then
     printf "%-20s : %s\\n" "$HOST" "✅ Password changed for user '$USER'"
@@ -1043,9 +1052,144 @@ for i in "\${hosts[@]}"; do
     FW="Unknown"
   fi
 
-  printf "%-15s : %-20s : BMC FW %s\n" "$HOST" "$MFG $MODEL" "$FW"
+  printf "%-15s : %-20s : BMC FW %s\n" '$HOST' "$MFG $MODEL" "$FW"
 done
 
+echo "-------------------------------------"`;
+        }
+                function generateAsRockUserScript() {
+            return `echo "-------------------------------------"
+echo " AsRock Create User Script"
+echo "-------------------------------------"
+
+for i in "\${hosts[@]}"; do
+  HOST_VAR="host\${i}"
+  USER_VAR="user\${i}"
+  PASS_VAR="pass\${i}"
+
+  HOST=\${!HOST_VAR}
+  USER=\${!USER_VAR}
+  PASS=\${!PASS_VAR}
+
+  # Wrapper to safely run commands
+  run_cmd() {
+    DESC="$1"
+    shift
+    CMD_OUTPUT=$("$@" 2>&1)
+    if [ $? -eq 0 ]; then
+      echo "✔ $DESC"
+    else
+      echo "❌ $DESC failed"
+      echo "   Output: $CMD_OUTPUT"
+    fi
+  }
+
+  # -------------------------------------------
+  # 1. Set username for user ID 4
+  # -------------------------------------------
+  run_cmd "Setting username for user ID 4" \
+    ipmitool '-I' 'lanplus' -H "$HOST" -U "$USER" -P "$PASS" 'user' 'set' 'name' '4' 'user'
+
+  # -------------------------------------------
+  # 2. Set password
+  # -------------------------------------------
+  run_cmd "Setting password for user ID 4" \
+    ipmitool '-I' 'lanplus' -H "$HOST" -U "$USER" -P "$PASS" 'user' 'set' 'password' '4' 'hvvc2006!'
+
+  # -------------------------------------------
+  # 3. Enable user
+  # -------------------------------------------
+  run_cmd "Enabling user ID 4" \
+    ipmitool '-I' 'lanplus' -H "$HOST" -U "$USER" -P "$PASS" 'user' 'enable' '4'
+
+  # -------------------------------------------
+  # 4a. Channel access - channel 1
+  # -------------------------------------------
+  run_cmd "Setting channel access (channel 1)" \
+    ipmitool '-I' 'lanplus' -H "$HOST" -U "$USER" -P "$PASS" 'channel' 'setaccess' '1' '4' 'callin=on' 'ipmi=on' 'link=on'
+
+  # -------------------------------------------
+  # 4b. Channel access - channel 8
+  # -------------------------------------------
+  run_cmd "Setting channel access (channel 8)" \
+    ipmitool '-I' 'lanplus' -H "$HOST" -U "$USER" -P "$PASS" 'channel' 'setaccess' '8' '4' 'callin=on' 'ipmi=on' 'link=on'
+
+  # -------------------------------------------
+  # 5. Set privileges
+  # -------------------------------------------
+  run_cmd "Setting user privilege (channel 1)" \
+    ipmitool '-I' 'lanplus' -H "$HOST" -U "$USER" -P "$PASS" 'user' 'priv' '4' '0x3' '1'
+
+  run_cmd "Setting user privilege (channel 8)" \
+    ipmitool -I 'lanplus' -H "$HOST" -U "$USER" -P "$PASS" 'user' 'priv' '4' '0x3' '8'
+
+done
+
+echo
+echo "-------------------------------------"
+echo "Completed"
+echo "-------------------------------------"`;
+        }
+        function generateDellUserScript() {
+            return `echo "-------------------------------------"
+echo " AsRock Create User Script"
+echo "-------------------------------------"
+
+for i in "\${hosts[@]}"; do
+  HOST_VAR="host\${i}"
+  USER_VAR="user\${i}"
+  PASS_VAR="pass\${i}"
+
+  HOST=\${!HOST_VAR}
+  USER=\${!USER_VAR}
+  PASS=\${!PASS_VAR}
+
+  # Wrapper to safely run commands
+ 
+  run_cmd() {
+    DESC="$1"
+    shift
+    CMD_OUTPUT=$("$@" 2>&1)
+    if [ $? -eq 0 ]; then
+      echo "✔ $DESC"
+    else
+      echo "❌ $DESC failed"
+      echo "   Output: $CMD_OUTPUT"
+    fi
+  }
+
+  # 1. Set username for user ID 4
+  run_cmd "Set username for user ID 4" \
+    ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" user set name 4 user
+
+  # 2. Set password for user ID 4
+  run_cmd "Set password for user ID 4" \
+    ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" user set password 4 'hvvc2006!'
+
+  # 3. Enable user ID 4
+  run_cmd "Enable user ID 4" \
+    ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" user enable 4
+
+  # 4. Set IPMI LAN privileges for user ID 4 (privilege 3)
+  run_cmd "Set IPMI LAN privilege level 3 for user ID 4" \
+    ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" user priv 4 3 1
+
+  # 5. Set channel access (channel 1) with operator privilege (3)
+  run_cmd "Set channel access (channel 1) with privilege=3" \
+    ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" channel setaccess 1 4 callin=on ipmi=on link=on privilege=3
+
+  # 6. Enable Serial Over LAN (SOL)
+  run_cmd "Enable SOL" \
+    ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" sol set enabled true
+
+  # 7. Set channel access again to ensure SOL privilege=3 (repeat)
+  run_cmd "Set channel access (channel 1) with privilege=3 (repeat for SOL)" \
+    ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" channel setaccess 1 4 callin=on ipmi=on link=on privilege=3
+done
+
+echo
+echo "-------------------------------------"
+echo "Completed"
 echo "-------------------------------------"`;
         }
         function copyToClipboard() {
