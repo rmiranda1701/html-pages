@@ -565,6 +565,7 @@
                 <button class="option-btn" data-option="7">MC Reset Cold</button>
                 <button class="option-btn" data-option="10">AsRock Create Operator User</button>
                 <button class="option-btn" data-option="11">Dell Create Operator User</button>
+                <button class="option-btn" data-option="12">SuperMicro Create Operator User</button>
                 
                 
                 
@@ -780,6 +781,9 @@
                     break;
                 case '11':
                     script += generateDellUserScript();
+                    break;
+                case '12':
+                    script += generateSuperMicroUserScript();
                     break;
             }
 
@@ -1017,7 +1021,7 @@ done
 
 echo "-------------------------------------"`;
         }
-                function generateMotherboardInfoSHORTScript() {
+        function generateMotherboardInfoSHORTScript() {
             return `echo "-------------------------------------"
 echo " IPMI FRU + MC Info Report"
 echo "-------------------------------------"
@@ -1057,7 +1061,7 @@ done
 
 echo "-------------------------------------"`;
         }
-                function generateAsRockUserScript() {
+        function generateAsRockUserScript() {
             return `echo "-------------------------------------"
 echo " AsRock Create User Script"
 echo "-------------------------------------"
@@ -1071,7 +1075,10 @@ for i in "\${hosts[@]}"; do
   USER=\${!USER_VAR}
   PASS=\${!PASS_VAR}
 
-  # Wrapper to safely run commands
+  echo
+  echo "Processing Host: $HOST"
+  echo "-------------------------------------"
+
   run_cmd() {
     DESC="$1"
     shift
@@ -1132,7 +1139,7 @@ echo "-------------------------------------"`;
         }
         function generateDellUserScript() {
             return `echo "-------------------------------------"
-echo " AsRock Create User Script"
+echo " Dell Create User Script"
 echo "-------------------------------------"
 
 for i in "\${hosts[@]}"; do
@@ -1144,7 +1151,9 @@ for i in "\${hosts[@]}"; do
   USER=\${!USER_VAR}
   PASS=\${!PASS_VAR}
 
-  # Wrapper to safely run commands
+  echo
+  echo "Processing Host: $HOST"
+  echo "-------------------------------------"
  
   run_cmd() {
     DESC="$1"
@@ -1185,6 +1194,67 @@ for i in "\${hosts[@]}"; do
   # 7. Set channel access again to ensure SOL privilege=3 (repeat)
   run_cmd "Set channel access (channel 1) with privilege=3 (repeat for SOL)" \
     ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" channel setaccess 1 4 callin=on ipmi=on link=on privilege=3
+done
+
+echo
+echo "-------------------------------------"
+echo "Completed"
+echo "-------------------------------------"`;
+        }
+        function generateSuperMicroUserScript() {
+            return `echo "-------------------------------------"
+echo " SuperMicro Create User Script"
+echo "-------------------------------------"
+
+for i in "\${hosts[@]}"; do
+  HOST_VAR="host\${i}"
+  USER_VAR="user\${i}"
+  PASS_VAR="pass\${i}"
+
+  HOST=\${!HOST_VAR}
+  USER=\${!USER_VAR}
+  PASS=\${!PASS_VAR}
+
+  echo
+  echo "Processing Host: $HOST"
+  echo "-------------------------------------"
+ 
+  run_cmd() {
+    DESC="$1"
+    shift
+    CMD_OUTPUT=$("$@" 2>&1)
+    if [ $? -eq 0 ]; then
+      echo "✔ $DESC"
+    else
+      echo "❌ $DESC failed"
+      echo "   Output: $CMD_OUTPUT"
+    fi
+  }
+
+  # -------------------------------------------
+  # 1. Set username for user ID 5
+  # -------------------------------------------
+  run_cmd "Setting username for user ID 5" \
+    ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" user set name 5 user
+
+  # -------------------------------------------
+  # 2. Set password for user ID 5
+  # -------------------------------------------
+  run_cmd "Setting password for user ID 5" \
+    ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" user set password 5 'hvvc2006!'
+
+  # -------------------------------------------
+  # 3. Enable user ID 5
+  # -------------------------------------------
+  run_cmd "Enabling user ID 5" \
+    ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" user enable 5
+
+  # -------------------------------------------
+  # 4. Set channel access (channel 1), privilege level 3 (Operator)
+  # -------------------------------------------
+  run_cmd "Setting channel access (channel 1) privilege=3" \
+    ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" channel setaccess 1 5 callin=on ipmi=on link=on privilege=3
+
 done
 
 echo
