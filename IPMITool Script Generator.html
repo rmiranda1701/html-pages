@@ -544,7 +544,8 @@
 
     <div class="contact-info">
         Contact Rei Miranda<br>
-        for suggestions/corrections
+        for suggestions/corrections<br>
+        ...special thanks for John Ha &#128016
     </div>
 
     <h1>IPMITool Script Generator</h1>
@@ -593,7 +594,7 @@
         </div>
 
         <div class="button-row">
-            <button class="generate-btn" onclick="generateScript()">Generate Script</button>
+            <button class="generate-btn" onclick="generateScript()">Generate Script &#128049</button>
             <button class="copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
             <span class="copy-message" id="copy-message">Copied!</span>
         </div>
@@ -889,7 +890,7 @@ for i in "\${hosts[@]}"; do
     continue
   fi
 
-  ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$OLD_PASS" user set password "$USER_ID" '$NEW_PASS' &>/dev/null
+  ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$OLD_PASS" user set password "$USER_ID" "$NEW_PASS" &>/dev/null
 
   if [ $? -eq 0 ]; then
     printf "%-20s : %s\\n" "$HOST" "✅ Password changed for user '$USER'"
