@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installation Guides - Hivelocity</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // Lucide React icons as inline SVG components
+        const Search = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+        );
+
+        const ChevronRight = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        );
+
+        const Copy = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+        );
+
+        const Check = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        );
+
+        const Plus = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        );
+
+        const InstallationGuidesApp = () => {
+            const [selectedGuide, setSelectedGuide] = useState(null);
+            const [searchQuery, setSearchQuery] = useState('');
+            const [copiedCommand, setCopiedCommand] = useState(null);
+            const [showSuggestionForm, setShowSuggestionForm] = useState(false);
+
+            const guides = [
+                // ========================================
+                // cpanel-install
+                // ========================================
+                {
+                    id: 'cpanel-install',
+                    title: 'cPanel Installation',
+                    description: 'Fresh cPanel & WHM installation on a clean server',
+                    category: 'Control Panels',
+                    steps: [
+                        {
+                            title: 'Download and run cPanel installer',
+                            commands: [
+                                'cd /home',
+                                'curl -o latest -L https://securedownloads.cpanel.net/latest',
+                                'sh latest'
+                            ],
+                            description: 'Download the official cPanel installation script and execute it. This process typically takes 30-60 minutes.'
+                        },
+                        {
+                            title: 'Access WHM',
+                            description: 'Once installation completes, access WHM to complete setup',
+                            commands: [
+                                'https://your-server-ip:2087'
+                            ]
+                        }
+                    ]
+                },
+                // ========================================
+                // cpanel-managed-new
+                // ========================================
+                {
+                    id: 'cpanel-managed-new',
+                    title: 'cPanel Managed Services (New)',
+                    description: 'Add managed services to a NEW cPanel installation',
+                    category: 'Managed Services',
+                    steps: [
+                        {
+                            title: 'Download and prepare the script',
+                            commands: [
+                                'wget scripts.hivelocity.net/harden/managed3.0_install.sh',
+                                'chmod +x managed3.0_install.sh'
+                            ],
+                            description: 'Download the managed services installation script and make it executable'
+                        },
+                        {
+                            title: 'Install managed services for cPanel',
+                            commands: ['./managed3.0_install.sh -t cpanel'],
+                            description: 'Installs managed services plus /scripts/upcp + csf. Use this for NEW cPanel servers.'
+                        }
+                    ]
+                },
+                // ========================================
+                // debian-11-to-proxmox-9
+                // ========================================
+                {
+                    id: 'cpanel-managed-existing',
+                    title: 'cPanel Managed Services (Existing)',
+                    description: 'Add managed services to an EXISTING cPanel server',
+                    category: 'Managed Services',
+                    steps: [
+                        {
+                            title: 'Download and prepare the script',
+                            commands: [
+                                'wget scripts.hivelocity.net/harden/managed3.0_install.sh',
+                                'chmod +x managed3.0_install.sh'
+                            ],
+                            description: 'Download the managed services installation script and make it executable'
+                        },
+                        {
+                            title: 'Install lite managed services',
+                            commands: ['./managed3.0_install.sh -t lite'],
+                            description: 'Installs just managed services for existing cPanel installations that are becoming managed.'
+                        }
+                    ]
+                },
+                // ========================================
+                // linux-managed
+                // ========================================
+                {
+                    id: 'linux-managed',
+                    title: 'Linux Managed Services',
+                    description: 'Basic managed services installation for Linux systems',
+                    category: 'Managed Services',
+                    steps: [
+                        {
+                            title: 'Download and prepare the script',
+                            commands: [
+                                'wget scripts.hivelocity.net/harden/managed3.0_install.sh',
+                                'chmod +x managed3.0_install.sh'
+                            ],
+                            description: 'Download the managed services installation script and make it executable'
+                        },
+                        {
+                            title: 'Run basic installation',
+                            commands: ['./managed3.0_install.sh -t basic'],
+                            description: 'Install basic managed services for Linux systems without a control panel.'
+                        }
+                    ]
+                },
+                // ========================================
+                // softaculous-install
+                // ========================================
+                {
+                    id: 'softaculous-install',
+                    title: 'Softaculous Installation',
+                    description: 'Install Softaculous auto-installer plugin for cPanel/WHM',
+                    category: 'Control Panels',
+                    steps: [
+                        {
+                            title: 'Set cPanel PHP loader to IonCube',
+                            description: 'In WHM, navigate to: Main >> Server Configuration >> Tweak Settings >> PHP and set the cPanel PHP loader to IonCube',
+                            commands: []
+                        },
+                        {
+                            title: 'Download and run Softaculous installer',
+                            commands: [
+                                'wget -N http://files.softaculous.com/install.sh',
+                                'chmod 755 install.sh',
+                                './install.sh'
+                            ],
+                            description: 'This will install and register the Softaculous plugin with your license'
+                        },
+                        {
+                            title: 'Verify installation in WHM',
+                            description: 'Navigate to: WHM > Plugins (Add-Ons on older versions) > Softaculous - Instant Installs. You should see the Softaculous interface if installation was successful.',
+                            commands: []
+                        },
+                        {
+                            title: 'Important notes',
+                            description: 'If using suPHP or suexec, refer to: http://www.softaculous.com/docs/SuPHP_Settings. You can import Fantastico scripts via the Import tab in Softaculous.',
+                            commands: []
+                        }
+                    ]
+                },
+                // ========================================
+                // debian-11-to-proxmox-9
+                // ========================================
+                {
+                    id: 'debian-11-to-proxmox-9',
+                    title: 'Debian 11 to Proxmox 9 Upgrade',
+                    description: 'Complete upgrade path from Debian 11 (Bullseye) to Proxmox VE 9',
+                    category: 'Virtualization',
+                    steps: [
+                        {
+                            title: 'Update and upgrade current Debian 11',
+                            commands: [
+                                'apt update && apt upgrade -y',
+                                'apt full-upgrade -y',
+                                'reboot'
+                            ],
+                            description: 'Ensure Debian 11 is fully updated before upgrading'
+                        },
+                        {
+                            title: 'Adjust APT sources for Bookworm',
+                            commands: [
+                                "sed -i 's/bullseye/bookworm/g' /etc/apt/sources.list"
+                            ],
+                            description: 'Update repository sources to Debian 12 (Bookworm)'
+                        },
+                        {
+                            title: 'Update package lists & perform the release upgrade',
+                            commands: [
+                                'apt update',
+                                'apt full-upgrade -y',
+                                'reboot'
+                            ],
+                            description: 'Upgrade to Debian 12'
+                        },
+                        {
+                            title: 'Verify Debian 12',
+                            commands: [
+                                'lsb_release -a'
+                            ],
+                            description: 'Confirm you are running Debian 12 before proceeding'
+                        },
+                        {
+                            title: 'Update & upgrade current Debian 12',
+                            commands: [
+                                'apt update && apt upgrade -y',
+                                'apt full-upgrade -y',
+                                'reboot'
+                            ],
+                            description: 'Ensure Debian 12 is fully updated before upgrading to Debian 13'
+                        },
+                        {
+                            title: 'Adjust APT sources for Trixie',
+                            commands: [
+                                "sed -i 's/bookworm/trixie/g' /etc/apt/sources.list"
+                            ],
+                            description: 'Update repository sources to Debian 13 (Trixie)'
+                        },
+                        {
+                            title: 'Update package lists & perform the release upgrade',
+                            commands: [
+                                'apt update',
+                                'apt full-upgrade -y',
+                                'reboot'
+                            ],
+                            description: 'Upgrade to Debian 13'
+                        },
+                        {
+                            title: 'Verify Debian 13',
+                            commands: [
+                                'lsb_release -a'
+                            ],
+                            description: 'Confirm you are running Debian 13 before installing Proxmox'
+                        },
+                        {
+                            title: 'Add the Proxmox VE 9 repository',
+                            commands: [
+                                'cat <<EOF | tee /etc/apt/sources.list.d/pve-install-repo.list\ndeb [signed-by=/usr/share/keyrings/proxmox-archive-keyring.gpg] http://download.proxmox.com/debian/pve trixie pve-no-subscription\nEOF'
+                            ],
+                            description: 'Add the Proxmox VE 9 repository to your system'
+                        },
+                        {
+                            title: 'Download the Proxmox archive key for Debian 13',
+                            commands: [
+                                'wget https://enterprise.proxmox.com/debian/proxmox-release-trixie.gpg -O /usr/share/keyrings/proxmox-archive-keyring.gpg'
+                            ],
+                            description: 'Download and install the GPG key for package verification'
+                        },
+                        {
+                            title: 'Verify repository configuration (CRITICAL)',
+                            commands: [
+                                'cat /etc/apt/sources.list.d/pve-install-repo.list'
+                            ],
+                            description: 'It MUST be exactly: deb [signed-by=/usr/share/keyrings/proxmox-archive-keyring.gpg] http://download.proxmox.com/debian/pve trixie pve-no-subscription. If not correct, fix it with the command below.'
+                        },
+                        {
+                            title: 'Fix repository if needed',
+                            commands: [
+                                'echo "deb [signed-by=/usr/share/keyrings/proxmox-archive-keyring.gpg] http://download.proxmox.com/debian/pve trixie pve-no-subscription" > /etc/apt/sources.list.d/pve-install-repo.list'
+                            ],
+                            description: 'Only run this if the previous verification showed incorrect format'
+                        },
+                        {
+                            title: 'Update & install Proxmox VE packages',
+                            commands: [
+                                'apt update',
+                                'apt install proxmox-ve postfix open-iscsi -y'
+                            ],
+                            description: 'Install Proxmox VE, Postfix mail server, and iSCSI initiator'
+                        },
+                        {
+                            title: 'Reboot into the Proxmox kernel',
+                            commands: [
+                                'reboot'
+                            ],
+                            description: 'Reboot to load the Proxmox kernel'
+                        },
+                        {
+                            title: 'Verify Proxmox installation',
+                            commands: [
+                                'pveversion'
+                            ],
+                            description: 'Confirm Proxmox VE 9 is installed and running'
+                        }
+                    ]
+                },
+                {
+                    id: 'proxmox-bond',
+                    title: 'Proxmox Double Bond Setup',
+                    description: 'Configure network bonding for Proxmox installations',
+                    category: 'Virtualization',
+                    comingSoon: true,
+                    steps: []
+                }
+            ];
+
+            const copyToClipboard = (text, id) => {
+                navigator.clipboard.writeText(text);
+                setCopiedCommand(id);
+                setTimeout(() => setCopiedCommand(null), 2000);
+            };
+
+            const filteredGuides = guides.filter(guide =>
+                guide.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                guide.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                guide.category.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+
+            const GuideCard = ({ guide }) => (
+                <div
+                    onClick={() => !guide.comingSoon && setSelectedGuide(guide)}
+                    className={`bg-white border-2 border-gray-200 rounded-lg p-6 transition-all duration-200 ${
+                        guide.comingSoon
+                            ? 'opacity-50 cursor-not-allowed'
+                            : 'hover:border-black hover:shadow-lg cursor-pointer'
+                    }`}
+                >
+                    <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-xl font-bold text-black">{guide.title}</h3>
+                        {guide.comingSoon && (
+                            <span className="bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1 rounded-full">
+                                Coming Soon
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-gray-600 mb-3">{guide.description}</p>
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500 font-medium">{guide.category}</span>
+                        {!guide.comingSoon && (
+                            <ChevronRight size={20} className="text-gray-400" />
+                        )}
+                    </div>
+                </div>
+            );
+
+            const CommandBlock = ({ command, id }) => (
+                <div className="relative bg-gray-900 text-gray-100 rounded-md p-4 font-mono text-sm mb-2 group">
+                    <code className="block overflow-x-auto">{command}</code>
+                    <button
+                        onClick={() => copyToClipboard(command, id)}
+                        className="absolute top-2 right-2 p-2 bg-gray-800 hover:bg-gray-700 rounded transition-colors opacity-0 group-hover:opacity-100"
+                    >
+                        {copiedCommand === id ? (
+                            <Check size={16} className="text-green-400" />
+                        ) : (
+                            <Copy size={16} className="text-gray-400" />
+                        )}
+                    </button>
+                </div>
+            );
+
+            const SuggestionForm = () => {
+                const [formData, setFormData] = useState({
+                    title: '',
+                    category: '',
+                    description: '',
+                    steps: ''
+                });
+
+                const handleSubmit = (e) => {
+                    e.preventDefault();
+                    // TODO: Integrate with your backend/queue system
+                    console.log('Suggestion submitted:', formData);
+                    alert('Thank you for your suggestion! It will be reviewed soon.');
+                    setShowSuggestionForm(false);
+                    setFormData({ title: '', category: '', description: '', steps: '' });
+                };
+
+                return (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-2xl font-bold text-black">Suggest a Guide</h2>
+                                <button
+                                    onClick={() => setShowSuggestionForm(false)}
+                                    className="text-gray-500 hover:text-black text-2xl"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                            <form onSubmit={handleSubmit} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Guide Title *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={formData.title}
+                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                        className="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-black focus:outline-none"
+                                        placeholder="e.g., Proxmox VE Installation"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Category *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={formData.category}
+                                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                        className="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-black focus:outline-none"
+                                        placeholder="e.g., Virtualization, Control Panels, Managed Services"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Description *
+                                    </label>
+                                    <textarea
+                                        required
+                                        value={formData.description}
+                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        className="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-black focus:outline-none h-24"
+                                        placeholder="Brief description of what this guide covers"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Installation Steps *
+                                    </label>
+                                    <textarea
+                                        required
+                                        value={formData.steps}
+                                        onChange={(e) => setFormData({ ...formData, steps: e.target.value })}
+                                        className="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-black focus:outline-none h-40"
+                                        placeholder="List the commands and steps needed for this installation..."
+                                    />
+                                </div>
+                                <div className="flex gap-3 pt-4">
+                                    <button
+                                        type="submit"
+                                        className="flex-1 bg-black text-white py-3 rounded-md font-semibold hover:bg-gray-800 transition-colors"
+                                    >
+                                        Submit Suggestion
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowSuggestionForm(false)}
+                                        className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-md font-semibold hover:bg-gray-300 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                );
+            };
+
+            if (selectedGuide) {
+                return (
+                    <div className="min-h-screen bg-gray-50">
+                        <div className="max-w-4xl mx-auto p-6">
+                            <button
+                                onClick={() => setSelectedGuide(null)}
+                                className="mb-6 text-gray-600 hover:text-black font-medium flex items-center gap-2"
+                            >
+                                ← Back to all guides
+                            </button>
+
+                            <div className="bg-white border-2 border-gray-200 rounded-lg p-8 mb-6">
+                                <div className="mb-6">
+                                    <span className="inline-block bg-gray-200 text-gray-700 text-sm font-semibold px-3 py-1 rounded-full mb-3">
+                                        {selectedGuide.category}
+                                    </span>
+                                    <h1 className="text-4xl font-bold text-black mb-3">
+                                        {selectedGuide.title}
+                                    </h1>
+                                    <p className="text-lg text-gray-600">{selectedGuide.description}</p>
+                                </div>
+
+                                <div className="space-y-8">
+                                    {selectedGuide.steps.map((step, stepIndex) => (
+                                        <div key={stepIndex} className="border-l-4 border-black pl-6">
+                                            <h2 className="text-2xl font-bold text-black mb-3">
+                                                Step {stepIndex + 1}: {step.title}
+                                            </h2>
+                                            {step.description && (
+                                                <p className="text-gray-600 mb-4">{step.description}</p>
+                                            )}
+
+                                            {step.commands && (
+                                                <div className="space-y-2">
+                                                    {step.commands.map((cmd, cmdIndex) => (
+                                                        <CommandBlock
+                                                            key={cmdIndex}
+                                                            command={cmd}
+                                                            id={`step-${stepIndex}-cmd-${cmdIndex}`}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {step.options && (
+                                                <div className="space-y-4 mt-4">
+                                                    {step.options.map((option, optIndex) => (
+                                                        <div
+                                                            key={optIndex}
+                                                            className="bg-gray-50 border-2 border-gray-200 rounded-lg p-4"
+                                                        >
+                                                            <h3 className="font-bold text-black mb-2">
+                                                                {option.label}
+                                                            </h3>
+                                                            <p className="text-sm text-gray-600 mb-3">
+                                                                {option.description}
+                                                            </p>
+                                                            <CommandBlock
+                                                                command={option.command}
+                                                                id={`step-${stepIndex}-opt-${optIndex}`}
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen bg-gray-50">
+                    <div className="max-w-6xl mx-auto p-6">
+                        <div className="mb-8">
+                            <h1 className="text-5xl font-bold text-black mb-3">
+                                Installation Guides
+                            </h1>
+                            <p className="text-xl text-gray-600">
+                                Step-by-step guides for server deployments and configurations
+                            </p>
+                        </div>
+
+                        <div className="flex gap-4 mb-8">
+                            <div className="flex-1 relative">
+                                <Search
+                                    className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                    size={20}
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Search guides..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none text-gray-800"
+                                />
+                            </div>
+                            <button
+                                onClick={() => setShowSuggestionForm(true)}
+                                className="bg-black text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center gap-2"
+                            >
+                                <Plus size={20} />
+                                Suggest Guide
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {filteredGuides.map((guide) => (
+                                <GuideCard key={guide.id} guide={guide} />
+                            ))}
+                        </div>
+
+                        {filteredGuides.length === 0 && (
+                            <div className="text-center py-12">
+                                <p className="text-gray-500 text-lg">
+                                    No guides found matching your search.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    {showSuggestionForm && <SuggestionForm />}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<InstallationGuidesApp />);
+    </script>
+</body>
+</html>
