@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juniper Wildcard Command Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%, #0a0a0a 100%);
+            background-attachment: fixed;
+            color: #e0e0e0;
+            padding: 20px;
+            padding-top: 80px;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .header-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(100, 100, 100, 0.3);
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            flex-wrap: wrap;
+        }
+        
+        .header-menu a {
+            padding: 0.6rem 1rem;
+            background: linear-gradient(135deg, rgba(80, 80, 80, 0.2), rgba(60, 60, 60, 0.15));
+            color: #c0c0c0;
+            text-decoration: none;
+            border: 1px solid rgba(100, 100, 100, 0.3);
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+        }
+        
+        .header-menu a:hover {
+            background: linear-gradient(135deg, rgba(100, 100, 100, 0.3), rgba(80, 80, 80, 0.25));
+            border-color: rgba(120, 120, 120, 0.5);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(80, 80, 80, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .header-menu {
+                padding: 0.75rem 1rem;
+                gap: 0.5rem;
+            }
+            
+            .header-menu a {
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+                flex: 1 1 calc(50% - 0.25rem);
+                min-width: 120px;
+                text-align: center;
+            }
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(60, 60, 60, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(80, 80, 80, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: linear-gradient(145deg, #1f1f1f 0%, #2a2a2a 100%);
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(100, 100, 100, 0.5) 20%, 
+                rgba(120, 120, 120, 0.8) 50%, 
+                rgba(100, 100, 100, 0.5) 80%, 
+                transparent 100%);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        h1 {
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #b0b0b0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            padding-bottom: 15px;
+            position: relative;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(120, 120, 120, 0.3) 20%, 
+                rgba(140, 140, 140, 0.6) 50%, 
+                rgba(120, 120, 120, 0.3) 80%, 
+                transparent 100%);
+        }
+        
+        .subtitle {
+            color: #909090;
+            margin-bottom: 35px;
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #c0c0c0;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+        
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            border: 1px solid rgba(80, 80, 80, 0.3);
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-size: 14px;
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                inset 0 1px 3px rgba(0, 0, 0, 0.3),
+                0 0 0 0 rgba(100, 100, 100, 0);
+        }
+        
+        input[type="text"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: rgba(120, 120, 120, 0.6);
+            background: linear-gradient(135deg, #141414 0%, #1f1f1f 100%);
+            box-shadow: 
+                inset 0 1px 3px rgba(0, 0, 0, 0.3),
+                0 0 0 3px rgba(100, 100, 100, 0.1),
+                0 4px 12px rgba(0, 0, 0, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23888888' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+        
+        .button-toggle-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .toggle-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+            border: 1px solid rgba(80, 80, 80, 0.3);
+            border-radius: 10px;
+            color: #b0b0b0;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .toggle-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(100, 100, 100, 0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .toggle-btn:hover {
+            border-color: rgba(120, 120, 120, 0.5);
+            color: #e0e0e0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .toggle-btn:hover::before {
+            opacity: 1;
+        }
+        
+        .toggle-btn.active {
+            background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
+            border-color: rgba(120, 120, 120, 0.6);
+            color: #ffffff;
+            box-shadow: 
+                0 4px 16px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        button {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-generate {
+            background: linear-gradient(135deg, #404040 0%, #505050 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            width: auto;
+        }
+        
+        .btn-generate:hover {
+            background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn-generate:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn-clear {
+            background: linear-gradient(135deg, #2a2a2a 0%, #353535 100%);
+            color: #b0b0b0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-clear:hover {
+            background: linear-gradient(135deg, #303030 0%, #3a3a3a 100%);
+            color: #e0e0e0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .output-section {
+            margin-top: 40px;
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        
+        .output-header h2 {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #c0c0c0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .command-count {
+            color: #909090;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(80, 80, 80, 0.3);
+        }
+        
+        .btn-copy {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, #353535 0%, #404040 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-copy:hover {
+            background: linear-gradient(135deg, #404040 0%, #4a4a4a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn-copy.copied {
+            background: linear-gradient(135deg, #3a3a3a 0%, #454545 100%);
+        }
+        
+        .output-box {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            border: 1px solid rgba(80, 80, 80, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 
+                inset 0 2px 8px rgba(0, 0, 0, 0.3),
+                0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .output-box::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        .output-box::-webkit-scrollbar-track {
+            background: #0f0f0f;
+            border-radius: 10px;
+        }
+        
+        .output-box::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
+            border-radius: 10px;
+            border: 2px solid #0f0f0f;
+        }
+        
+        .output-box::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%);
+        }
+        
+        .command-line {
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            color: #e8e8e8;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(80, 80, 80, 0.2);
+            line-height: 1.6;
+            transition: all 0.2s;
+        }
+        
+        .command-line:hover {
+            background: rgba(255, 255, 255, 0.02);
+            padding-left: 8px;
+            border-left: 2px solid rgba(120, 120, 120, 0.4);
+        }
+        
+        .command-line:last-child {
+            border-bottom: none;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #707070;
+            margin-top: 6px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+        
+        .examples {
+            background: linear-gradient(135deg, #141414 0%, #1a1a1a 100%);
+            padding: 18px;
+            border-radius: 10px;
+            margin-top: 12px;
+            border-left: 3px solid rgba(100, 100, 100, 0.4);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .examples-title {
+            color: #c0c0c0;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .example-item {
+            color: #909090;
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            padding: 6px 0;
+            transition: color 0.2s;
+        }
+        .example-item:hover {
+            color: #b0b0b0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-menu">
+        <a href="https://app.rei-deploy.store/network_configuration_generator.html" target="_blank">Network Config Generator</a>
+        <a href="https://app.rei-deploy.store/ipmitool_script_generator.html" target="_blank">IPMITool Script Generator</a>
+        <a href="https://app.rei-deploy.store/installation_guides.html" target="_blank">Installation Guides</a>
+        <!--<a href="https://google.com" target="_blank">Google</a>-->
+        <!--<a href="https://google.com" target="_blank">Google</a>-->
+    </div>
+    
+    <div class="container">
+        <h1>Juniper Wildcard Command Generator</h1>
+        <p class="subtitle">Generate multiple interface commands from wildcard patterns</p>
+        
+        <div class="form-group">
+            <label for="interface">Interface Pattern</label>
+            <input type="text" id="interface" placeholder="e.g., ge-0/0/[0-10]">
+            <div class="help-text">Use brackets for ranges: ge-0/0/[0-5], xe-0/0/[10-20], et-0/0/[0,2,4]</div>
+            <div class="examples">
+                <div class="examples-title">Examples:</div>
+                <div class="example-item">ge-0/0/[0-10] → Generates ge-0/0/0 through ge-0/0/10</div>
+                <div class="example-item">xe-0/0/[0,2,4,6] → Generates xe-0/0/0, xe-0/0/2, xe-0/0/4, xe-0/0/6</div>
+                <div class="example-item">et-0/0/[48-51] → Generates et-0/0/48 through et-0/0/51</div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Action</label>
+            <div class="button-toggle-group">
+                <button class="toggle-btn active" data-action="set" onclick="setAction('set')">SET</button>
+                <button class="toggle-btn" data-action="delete" onclick="setAction('delete')">DELETE</button>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Command Template</label>
+            <div class="button-toggle-group">
+                <button class="toggle-btn active" data-template="custom" onclick="setTemplate('custom')">Custom</button>
+                <button class="toggle-btn" data-template="disable" onclick="setTemplate('disable')">Disable</button>
+                <button class="toggle-btn" data-template="enable" onclick="setTemplate('enable')">Enable</button>
+                <button class="toggle-btn" data-template="description" onclick="setTemplate('description')">Description</button>
+                <button class="toggle-btn" data-template="vlan-trunk" onclick="setTemplate('vlan-trunk')">VLAN Trunk</button>
+                <button class="toggle-btn" data-template="vlan-access" onclick="setTemplate('vlan-access')">VLAN Access</button>
+            </div>
+        </div>
+        
+        <div class="form-group" id="customCommandGroup">
+            <label for="customCommand">Custom Command</label>
+            <textarea id="customCommand" rows="3" placeholder="e.g., unit 0 family inet address 192.168.1.1/24"></textarea>
+            <div class="help-text">Enter the command portion after "interfaces {interface}"</div>
+        </div>
+        
+        <div class="form-group" id="vlanGroup" style="display: none;">
+            <label for="vlanName">VLAN Name/ID</label>
+            <input type="text" id="vlanName" placeholder="e.g., 100 or vlan-name">
+        </div>
+        
+        <div class="form-group" id="descriptionGroup" style="display: none;">
+            <label for="description">Description</label>
+            <input type="text" id="description" placeholder="e.g., Access Port - Workstation">
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-generate" onclick="generateCommands()">Generate Commands</button>
+            <button class="btn-clear" onclick="clearAll()">Clear</button>
+        </div>
+        
+        <div class="output-section" id="outputSection">
+            <div class="output-header">
+                <h2>Wildcard Command</h2>
+                <button class="btn-copy" onclick="copyWildcard()">Copy</button>
+            </div>
+            <div class="output-box" id="wildcardBox"></div>
+            
+            <div class="output-header" style="margin-top: 25px;">
+                <div>
+                    <h2 style="display: inline-block; margin-right: 15px;">Expanded Commands</h2>
+                    <span class="command-count" id="commandCount"></span>
+                </div>
+                <button class="btn-copy" onclick="copyAll()">Copy All</button>
+            </div>
+            <div class="output-box" id="outputBox"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentAction = 'set';
+        let currentTemplate = 'custom';
+        const customCommandGroup = document.getElementById('customCommandGroup');
+        const vlanGroup = document.getElementById('vlanGroup');
+        const descriptionGroup = document.getElementById('descriptionGroup');
+        
+        function setAction(action) {
+            currentAction = action;
+            document.querySelectorAll('[data-action]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-action="${action}"]`).classList.add('active');
+        }
+        
+        function setTemplate(template) {
+            currentTemplate = template;
+            document.querySelectorAll('[data-template]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-template="${template}"]`).classList.add('active');
+            
+            // Show/hide relevant input groups
+            customCommandGroup.style.display = template === 'custom' ? 'block' : 'none';
+            vlanGroup.style.display = (template === 'vlan-trunk' || template === 'vlan-access') ? 'block' : 'none';
+            descriptionGroup.style.display = template === 'description' ? 'block' : 'none';
+        }
+        
+        function parseWildcard(pattern) {
+            const regex = /\[([^\]]+)\]/;
+            const match = pattern.match(regex);
+            
+            if (!match) {
+                return [pattern];
+            }
+            
+            const rangeStr = match[1];
+            const prefix = pattern.substring(0, match.index);
+            const suffix = pattern.substring(match.index + match[0].length);
+            
+            let numbers = [];
+            
+            if (rangeStr.includes('-')) {
+                const [start, end] = rangeStr.split('-').map(Number);
+                for (let i = start; i <= end; i++) {
+                    numbers.push(i);
+                }
+            } else {
+                numbers = rangeStr.split(',').map(s => s.trim()).map(Number);
+            }
+            
+            return numbers.map(num => `${prefix}${num}${suffix}`);
+        }
+        
+        function generateCommands() {
+            const interfacePattern = document.getElementById('interface').value.trim();
+            
+            if (!interfacePattern) {
+                alert('Please enter an interface pattern');
+                return;
+            }
+            
+            let command = '';
+            
+            if (currentTemplate === 'custom') {
+                command = document.getElementById('customCommand').value.trim();
+            } else if (currentTemplate === 'disable') {
+                command = 'disable';
+            } else if (currentTemplate === 'enable') {
+                command = 'disable';
+            } else if (currentTemplate === 'vlan-trunk') {
+                const vlan = document.getElementById('vlanName').value.trim();
+                if (!vlan) {
+                    alert('Please enter a VLAN name or ID');
+                    return;
+                }
+                command = `unit 0 family ethernet-switching vlan members ${vlan}`;
+            } else if (currentTemplate === 'vlan-access') {
+                const vlan = document.getElementById('vlanName').value.trim();
+                if (!vlan) {
+                    alert('Please enter a VLAN name or ID');
+                    return;
+                }
+                command = `unit 0 family ethernet-switching interface-mode access vlan members ${vlan}`;
+            } else if (currentTemplate === 'description') {
+                const desc = document.getElementById('description').value.trim();
+                if (!desc) {
+                    alert('Please enter a description');
+                    return;
+                }
+                command = `description "${desc}"`;
+            }
+            
+            const interfaces = parseWildcard(interfacePattern);
+            const commands = [];
+            
+            interfaces.forEach(iface => {
+                let fullCommand = `${currentAction} interfaces ${iface}`;
+                if (command) {
+                    fullCommand += ` ${command}`;
+                }
+                commands.push(fullCommand);
+            });
+            
+            displayCommands(commands);
+        }
+        
+        function displayCommands(commands) {
+            const outputSection = document.getElementById('outputSection');
+            const outputBox = document.getElementById('outputBox');
+            const wildcardBox = document.getElementById('wildcardBox');
+            const commandCount = document.getElementById('commandCount');
+            const interfacePattern = document.getElementById('interface').value.trim();
+            
+            let command = '';
+            
+            if (currentTemplate === 'custom') {
+                command = document.getElementById('customCommand').value.trim();
+            } else if (currentTemplate === 'disable') {
+                command = 'disable';
+            } else if (currentTemplate === 'enable') {
+                command = 'disable';
+            } else if (currentTemplate === 'vlan-trunk') {
+                const vlan = document.getElementById('vlanName').value.trim();
+                command = `unit 0 family ethernet-switching vlan members ${vlan}`;
+            } else if (currentTemplate === 'vlan-access') {
+                const vlan = document.getElementById('vlanName').value.trim();
+                command = `unit 0 family ethernet-switching interface-mode access vlan members ${vlan}`;
+            } else if (currentTemplate === 'description') {
+                const desc = document.getElementById('description').value.trim();
+                command = `description "${desc}"`;
+            }
+            
+            let wildcardCommand = `wildcard range ${currentAction} interfaces ${interfacePattern}`;
+            if (command) {
+                wildcardCommand += ` ${command}`;
+            }
+            
+            wildcardBox.innerHTML = `<div class="command-line">${wildcardCommand}</div>`;
+            
+            outputBox.innerHTML = commands.map(cmd => 
+                `<div class="command-line">${cmd}</div>`
+            ).join('');
+            
+            commandCount.textContent = `${commands.length} command${commands.length !== 1 ? 's' : ''}`;
+            outputSection.style.display = 'block';
+            
+            outputSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        async function copyToClipboard(text, btn) {
+            const originalText = btn.textContent;
+            
+            // Method 1: Modern Clipboard API 
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('copied');
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.classList.remove('copied');
+                    }, 2000);
+                    return;
+                } catch (err) {
+                    console.log('Clipboard API failed, trying fallback method');
+                }
+            }
+            
+            // Method 2: Fallback using execCommand 
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-9999px';
+                textarea.style.top = '0';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                if (successful) {
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('copied');
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.classList.remove('copied');
+                    }, 2000);
+                    return;
+                }
+            } catch (err) {
+                console.log('execCommand failed, showing manual copy');
+            }
+            
+            // Method 3: Last resort - show text in a modal for manual copy
+            showManualCopyModal(text);
+        }
+        
+        function showManualCopyModal(text) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: linear-gradient(145deg, #1f1f1f 0%, #2a2a2a 100%);
+                padding: 30px;
+                border-radius: 20px;
+                max-width: 600px;
+                width: 90%;
+                border: 1px solid rgba(80, 80, 80, 0.3);
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            `;
+            
+            content.innerHTML = `
+                <h3 style="color: #ffffff; margin-bottom: 15px; font-size: 20px; font-weight: 700;">Manual Copy Required</h3>
+                <p style="color: #b0b0b0; margin-bottom: 15px; font-size: 14px;">
+                    Please manually copy the text below (Ctrl+A, then Ctrl+C):
+                </p>
+                <textarea readonly style="
+                    width: 100%;
+                    height: 200px;
+                    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+                    color: #e0e0e0;
+                    border: 1px solid rgba(80, 80, 80, 0.3);
+                    border-radius: 10px;
+                    padding: 14px;
+                    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+                    font-size: 13px;
+                    margin-bottom: 15px;
+                    resize: vertical;
+                ">${text}</textarea>
+                <button onclick="this.parentElement.parentElement.remove()" style="
+                    padding: 12px 28px;
+                    background: linear-gradient(135deg, #404040 0%, #505050 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    font-weight: 700;
+                ">Close</button>
+            `;
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            
+            // Auto-select the text
+            const textarea = content.querySelector('textarea');
+            textarea.focus();
+            textarea.select();
+            
+            // Close on background click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        function copyAll() {
+            const outputBox = document.getElementById('outputBox');
+            const commands = Array.from(outputBox.querySelectorAll('.command-line'))
+                .map(el => el.textContent)
+                .join('\n');
+            
+            copyToClipboard(commands, event.target);
+        }
+        
+        function copyWildcard() {
+            const wildcardBox = document.getElementById('wildcardBox');
+            const command = wildcardBox.querySelector('.command-line').textContent;
+            
+            copyToClipboard(command, event.target);
+        }
+        
+        function clearAll() {
+            document.getElementById('interface').value = '';
+            document.getElementById('customCommand').value = '';
+            document.getElementById('vlanName').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('outputSection').style.display = 'none';
+            
+            // Reset to defaults
+            currentAction = 'set';
+            currentTemplate = 'custom';
+            
+            document.querySelectorAll('[data-action]').forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-action="set"]').classList.add('active');
+            
+            document.querySelectorAll('[data-template]').forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-template="custom"]').classList.add('active');
+            
+            customCommandGroup.style.display = 'block';
+            vlanGroup.style.display = 'none';
+            descriptionGroup.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
