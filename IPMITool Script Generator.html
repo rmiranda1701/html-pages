@@ -536,8 +536,8 @@
 <body>
 <div class="header-menu">
     <a href="https://app.rei-deploy.store/network_configuration_generator.html" target="_blank">Network Config Generator</a>
-    <!--<a href="https://google.com" target="_blank">Google</a>-->
-    <!--<a href="https://google.com" target="_blank">Google</a>-->
+    <a href="https://app.rei-deploy.store/juniper_wildcard_command_generator.html" target="_blank">Juniper Wildcard Generator</a>
+    <a href="https://app.rei-deploy.store/installation_guides.html" target="_blank">Installation Guides</a>
     <!--<a href="https://google.com" target="_blank">Google</a>-->
     <!--<a href="https://google.com" target="_blank">Google</a>-->
 </div>
@@ -573,26 +573,53 @@
             </div>
         </div>
 
-        <div class="section" id="hosts-section">
-            <div class="section-title">Devices</div>
-            <div class="labels-row normal" id="labels-row">
-                <label>Host IP</label>
-                <label>Username</label>
-                <label>Password</label>
-                <label></label>
-            </div>
-            <div id="hosts-container">
-                <div class="host-row normal">
-                    <span class="device-number">1</span>
-                    <input type="text" class="host-ip" placeholder="8.8.8.8" oninput="this.value=this.value.trim()">
-                    <input type="text" class="username" placeholder="root" oninput="this.value=this.value.trim()">
-                    <input type="text" class="password" placeholder="calvin" oninput="this.value=this.value.trim()">
-                    <input type="text" class="new-password hidden" placeholder="NEW Password" oninput="this.value=this.value.trim()">
-                    <button class="add-btn" onclick="addHost()">+</button>
-                </div>
-            </div>
-        </div>
+<div class="section" id="hosts-section">
+    <div class="section-title">Devices</div>
 
+    <div class="labels-row normal" id="labels-row">
+        <label>Host IP</label>
+
+        <label>
+            <input type="checkbox"
+                   id="mirror-usernames"
+                   onchange="toggleMirrorUsernames()"
+                   style="margin-right:6px;">
+            Username
+        </label>
+
+        <label id="password-label">Password</label>
+        <label id="new-password-label" class="hidden">New Password</label>
+        <label></label>
+    </div>
+
+    <div id="hosts-container">
+        <div class="host-row normal">
+            <span class="device-number">1</span>
+
+            <input type="text"
+                   class="host-ip"
+                   placeholder="8.8.8.8"
+                   oninput="this.value=this.value.trim()">
+
+            <input type="text"
+                   class="username"
+                   placeholder="root"
+                   oninput="this.value=this.value.trim(); mirrorUsernameInput(this)">
+
+            <input type="text"
+                   class="password"
+                   placeholder="calvin"
+                   oninput="this.value=this.value.trim()">
+
+            <input type="text"
+                   class="new-password hidden"
+                   placeholder="NEW Password"
+                   oninput="this.value=this.value.trim()">
+
+            <button class="add-btn" onclick="addHost()">+</button>
+        </div>
+    </div>
+</div>
         <div class="button-row">
             <button class="generate-btn" onclick="generateScript()">Generate Script &#128049</button>
             <button class="copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
@@ -602,46 +629,39 @@
         <div class="output" id="output"></div>
     </div>
 
-    <script>
-        let selectedOption = null;
+<script>
+let selectedOption = null;
 
-        document.querySelectorAll('.option-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-                this.classList.add('selected');
-                selectedOption = this.dataset.option;
+document.querySelectorAll('.option-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.option-btn')
+            .forEach(b => b.classList.remove('selected'));
 
-                const isPasswordChange = selectedOption === '4';
-                
-                const labelsRow = document.getElementById('labels-row');
-                labelsRow.className = 'labels-row ' + (isPasswordChange ? 'password-change' : 'normal');
-                
-                if (isPasswordChange) {
-                    labelsRow.innerHTML = `
-                        <label>Host IP</label>
-                        <label>Username</label>
-                        <label>Current Password</label>
-                        <label>New Password</label>
-                        <label></label>
-                    `;
-                } else {
-                    labelsRow.innerHTML = `
-                        <label>Host IP</label>
-                        <label>Username</label>
-                        <label>Password</label>
-                        <label></label>
-                    `;
-                }
-                
-                document.querySelectorAll('.new-password').forEach(input => {
-                    input.classList.toggle('hidden', !isPasswordChange);
-                });
-                
-                document.querySelectorAll('.host-row').forEach(row => {
-                    row.className = 'host-row ' + (isPasswordChange ? 'password-change' : 'normal');
-                });
-            });
+        this.classList.add('selected');
+        selectedOption = this.dataset.option;
+
+        const isPasswordChange = selectedOption === '4';
+
+        const labelsRow = document.getElementById('labels-row');
+        labelsRow.className =
+            'labels-row ' + (isPasswordChange ? 'password-change' : 'normal');
+
+        document.getElementById('password-label').textContent =
+            isPasswordChange ? 'Current Password' : 'Password';
+
+        document.getElementById('new-password-label')
+            .classList.toggle('hidden', !isPasswordChange);
+
+        document.querySelectorAll('.new-password').forEach(input => {
+            input.classList.toggle('hidden', !isPasswordChange);
         });
+
+        document.querySelectorAll('.host-row').forEach(row => {
+            row.className =
+                'host-row ' + (isPasswordChange ? 'password-change' : 'normal');
+        });
+    });
+});
 
         function addHost() {
             const container = document.getElementById('hosts-container');
@@ -660,7 +680,28 @@
             `;
             container.appendChild(newRow);
             renumberHosts();
+
+            const mirror = document.getElementById('mirror-usernames');
+              if (mirror && mirror.checked) {
+            const usernames = document.querySelectorAll('.username');
+              if (usernames.length > 1) {
+            usernames[usernames.length - 1].value = usernames[0].value;
+    }
+}
+
         }
+        function mirrorUsernameInput(source) {
+            const checkbox = document.getElementById('mirror-usernames');
+        if (!checkbox || !checkbox.checked) return;
+
+            const usernames = document.querySelectorAll('.username');
+            usernames.forEach((input, index) => {
+        if (index !== 0) {
+            input.value = source.value;
+        }
+    });
+}
+
         function renumberHosts() {
             const nums = document.querySelectorAll('.device-number');
             nums.forEach((el, i) => {
@@ -793,7 +834,8 @@
         }
 
         function generateStatusScript() {
-            return `echo "-------------------------------------"
+            return `
+echo "-------------------------------------"
 echo " IPMI Power Status Report"
 echo "-------------------------------------"
 
@@ -806,19 +848,45 @@ for i in "\${hosts[@]}"; do
   USER=\${!USER_VAR}
   PASS=\${!PASS_VAR}
 
+  echo
+  echo "➡️  Processing host: $HOST"
+
+  # Attempt 1: default cipher
+  echo "   🔐 Trying default cipher..."
   STATUS=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" power status 2>/dev/null)
   if [ $? -eq 0 ]; then
-    printf "%-20s : %s\\\\n" "$HOST" "$STATUS"
-  else
-    printf "%-20s : %s\\\\n" "$HOST" "Connection failed"
+    printf "   ✅ %-17s : %s\n" "$HOST" "$STATUS"
+    continue
   fi
+  echo "   ❌ Default cipher failed → trying cipher -C 3"
+
+  # Attempt 2: cipher 3
+  echo "   🔐 Trying cipher -C 3..."
+  STATUS=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C 3 power status 2>/dev/null)
+  if [ $? -eq 0 ]; then
+    printf "   ✅ %-17s : %s\n" "$HOST" "$STATUS"
+    continue
+  fi
+  echo "   ❌ Cipher -C 3 failed → trying cipher -C 2"
+
+  # Attempt 3: cipher 2
+  echo "   🔐 Trying cipher -C 2..."
+  STATUS=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C 2 power status 2>/dev/null)
+  if [ $? -eq 0 ]; then
+    printf "   ✅ %-17s : %s\n" "$HOST" "$STATUS"
+    continue
+  fi
+
+  # All attempts failed
+  echo "   ❌ All cipher attempts failed for $HOST"
 done
 
 echo "-------------------------------------"`;
         }
 
         function generatePowerOnScript() {
-            return `echo "-------------------------------------"
+            return `
+echo "-------------------------------------"
 echo " IPMI Power-On Command"
 echo "-------------------------------------"
 
@@ -831,19 +899,45 @@ for i in "\${hosts[@]}"; do
   USER=\${!USER_VAR}
   PASS=\${!PASS_VAR}
 
+  echo
+  echo "➡️  Processing host: $HOST"
+
+  # Attempt 1: default cipher
+  echo "   🔐 Trying default cipher..."
   STATUS=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" power on 2>/dev/null)
   if [ $? -eq 0 ]; then
-    printf "%-20s : %s\\n" "$HOST" "$STATUS"
-  else
-    printf "%-20s : %s\\n" "$HOST" "Connection failed"
+    printf "   ✅ %-17s : %s\n" "$HOST" "$STATUS"
+    continue
   fi
+  echo "   ❌ Default cipher failed → trying cipher -C 3"
+
+  # Attempt 2: cipher 3
+  echo "   🔐 Trying cipher -C 3..."
+  STATUS=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C 3 power on 2>/dev/null)
+  if [ $? -eq 0 ]; then
+    printf "   ✅ %-17s : %s\n" "$HOST" "$STATUS"
+    continue
+  fi
+  echo "   ❌ Cipher -C 3 failed → trying cipher -C 2"
+
+  # Attempt 3: cipher 2
+  echo "   🔐 Trying cipher -C 2..."
+  STATUS=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C 2 power on 2>/dev/null)
+  if [ $? -eq 0 ]; then
+    printf "   ✅ %-17s : %s\n" "$HOST" "$STATUS"
+    continue
+  fi
+
+  # All attempts failed
+  echo "   ❌ All cipher attempts failed for $HOST"
 done
 
 echo "-------------------------------------"`;
         }
 
         function generatePowerOffScript() {
-            return `echo "-------------------------------------"
+            return `
+echo "-------------------------------------"
 echo " IPMI Power-Off Command"
 echo "-------------------------------------"
 
@@ -856,19 +950,45 @@ for i in "\${hosts[@]}"; do
   USER=\${!USER_VAR}
   PASS=\${!PASS_VAR}
 
+  echo
+  echo "➡️  Processing host: $HOST"
+
+  # Attempt 1: default cipher
+  echo "   🔐 Trying default cipher..."
   STATUS=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" power off 2>/dev/null)
   if [ $? -eq 0 ]; then
-    printf "%-20s : %s\\n" "$HOST" "$STATUS"
-  else
-    printf "%-20s : %s\\n" "$HOST" "Connection failed"
+    printf "   ✅ %-17s : %s\n" "$HOST" "$STATUS"
+    continue
   fi
+  echo "   ❌ Default cipher failed → trying cipher -C 3"
+
+  # Attempt 2: cipher -C 3
+  echo "   🔐 Trying cipher -C 3..."
+  STATUS=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C 3 power off 2>/dev/null)
+  if [ $? -eq 0 ]; then
+    printf "   ✅ %-17s : %s\n" "$HOST" "$STATUS"
+    continue
+  fi
+  echo "   ❌ Cipher -C 3 failed → trying cipher -C 2"
+
+  # Attempt 3: cipher -C 2
+  echo "   🔐 Trying cipher -C 2..."
+  STATUS=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C 2 power off 2>/dev/null)
+  if [ $? -eq 0 ]; then
+    printf "   ✅ %-17s : %s\n" "$HOST" "$STATUS"
+    continue
+  fi
+
+  # All attempts failed
+  echo "   ❌ All cipher attempts failed for $HOST"
 done
 
 echo "-------------------------------------"`;
         }
 
         function generatePasswordChangeScript() {
-            return `echo "-------------------------------------"
+            return `
+echo "-------------------------------------"
 echo " Changing IPMI Passwords"
 echo "-------------------------------------"
 
@@ -883,27 +1003,75 @@ for i in "\${hosts[@]}"; do
   OLD_PASS=\${!PASS_VAR}
   NEW_PASS=\${!NEWPASS_VAR}
   
-  USER_ID=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$OLD_PASS" user list 2>/dev/null | awk -v u="$USER" '$2 == u {print $1}')
+  echo
+  echo "➡️  Processing host: $HOST"
+
+  ############################
+  # Step 1: Get USER ID
+  ############################
+  echo "   🔐 Retrieving user ID (default cipher)..."
+  USER_ID=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$OLD_PASS" user list 2>/dev/null \
+            | awk -v u="$USER" '$2 == u {print $1}')
 
   if [ -z "$USER_ID" ]; then
-    printf "%-20s : %s\\n" "$HOST" "⚠ Could not find user ID for '$USER'"
+    echo "   ❌ Default cipher failed → trying cipher -C 3"
+
+    echo "   🔐 Retrieving user ID (cipher -C 3)..."
+    USER_ID=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$OLD_PASS" -C 3 user list 2>/dev/null \
+              | awk -v u="$USER" '$2 == u {print $1}')
+  fi
+
+  if [ -z "$USER_ID" ]; then
+    echo "   ❌ Cipher -C 3 failed → trying cipher -C 2"
+
+    echo "   🔐 Retrieving user ID (cipher -C 2)..."
+    USER_ID=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$OLD_PASS" -C 2 user list 2>/dev/null \
+              | awk -v u="$USER" '$2 == u {print $1}')
+  fi
+
+  if [ -z "$USER_ID" ]; then
+    printf "   ❌ %-17s : %s\n" "$HOST" "Could not find user ID for '$USER' (all ciphers failed)"
     continue
   fi
 
-  ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$OLD_PASS" user set password "$USER_ID" "$NEW_PASS" &>/dev/null
+  echo "   ✅ Found user ID $USER_ID for user '$USER'"
 
+  ############################
+  # Step 2: Change password
+  ############################
+  echo "   🔐 Changing password (default cipher)..."
+  ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$OLD_PASS" user set password "$USER_ID" "$NEW_PASS" &>/dev/null
   if [ $? -eq 0 ]; then
-    printf "%-20s : %s\\n" "$HOST" "✅ Password changed for user '$USER'"
-  else
-    printf "%-20s : %s\\n" "$HOST" "⚠ Failed to change password"
+    printf "   ✅ %-17s : Password changed for user '%s'\n" "$HOST" "$USER"
+    continue
   fi
+  echo "   ❌ Default cipher failed → trying cipher -C 3"
+
+  echo "   🔐 Changing password (cipher -C 3)..."
+  ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$OLD_PASS" -C 3 user set password "$USER_ID" "$NEW_PASS" &>/dev/null
+  if [ $? -eq 0 ]; then
+    printf "   ✅ %-17s : Password changed for user '%s'\n" "$HOST" "$USER"
+    continue
+  fi
+  echo "   ❌ Cipher -C 3 failed → trying cipher -C 2"
+
+  echo "   🔐 Changing password (cipher -C 2)..."
+  ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$OLD_PASS" -C 2 user set password "$USER_ID" "$NEW_PASS" &>/dev/null
+  if [ $? -eq 0 ]; then
+    printf "   ✅ %-17s : Password changed for user '%s'\n" "$HOST" "$USER"
+    continue
+  fi
+
+  # All attempts failed
+  printf "   ❌ %-17s : %s\n" "$HOST" "Failed to change password (all ciphers)"
 done
 
 echo "-------------------------------------"`;
         }
 
         function generateRebootBIOSScript() {
-            return `echo "-------------------------------------"
+            return `
+echo "-------------------------------------"
 echo " IPMI Reboot to BIOS"
 echo "-------------------------------------"
 
@@ -916,53 +1084,119 @@ for i in "\${hosts[@]}"; do
   USER=\${!USER_VAR}
   PASS=\${!PASS_VAR}
 
-  ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" chassis bootparam set bootflag force_bios &>/dev/null
-  if [ $? -eq 0 ]; then
-    echo "$HOST : Boot flag set to BIOS"
-  else
-    echo "$HOST : ⚠ Failed to set BIOS boot flag"
+  echo
+  echo "➡️  Processing host: $HOST"
+
+  WORKING_CIPHER=""
+
+  ####################################
+  # Step 1: Set boot flag to BIOS
+  ####################################
+  for C in "" 3 2; do
+    if [ -z "$C" ]; then
+      echo "   🔐 Setting BIOS boot flag (default cipher)..."
+      ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" \
+        chassis bootparam set bootflag force_bios &>/dev/null
+    else
+      echo "   🔐 Setting BIOS boot flag (cipher -C $C)..."
+      ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C "$C" \
+        chassis bootparam set bootflag force_bios &>/dev/null
+    fi
+
+    if [ $? -eq 0 ]; then
+      WORKING_CIPHER="$C"
+      echo "   ✅ Boot flag set successfully"
+      break
+    else
+      if [ -z "$C" ]; then
+        echo "   ❌ Default cipher failed"
+      else
+        echo "   ❌ Cipher -C $C failed"
+      fi
+    fi
+  done
+
+  if [ -z "$WORKING_CIPHER" ]; then
+    echo "   ❌ Failed to set BIOS boot flag (all ciphers)"
     continue
   fi
 
-  OUTPUT=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" chassis power cycle 2>/dev/null)
-  if [ $? -eq 0 ]; then
-    printf "%-20s : %s\\n" "$HOST" "$OUTPUT"
+  ####################################
+  # Step 2: Power cycle (reuse cipher)
+  ####################################
+  if [ -z "$WORKING_CIPHER" ]; then
+    echo "   🔐 Power cycling chassis (default cipher)..."
+    OUTPUT=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" \
+             chassis power cycle 2>/dev/null)
   else
-    printf "%-20s : %s\\n" "$HOST" "⚠ Connection failed"
+    echo "   🔐 Power cycling chassis (cipher -C $WORKING_CIPHER)..."
+    OUTPUT=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C "$WORKING_CIPHER" \
+             chassis power cycle 2>/dev/null)
+  fi
+
+  if [ $? -eq 0 ]; then
+    printf "   ✅ %-17s : %s\n" "$HOST" "$OUTPUT"
+  else
+    echo "   ❌ Power cycle failed using working cipher"
   fi
 done
 
 echo "-------------------------------------"`;
         }
         function generateActiveSessionScript() {
-            return `echo "-------------------------------------"
+            return `
+echo "-------------------------------------"
 echo " IPMI Active Session Info"
 echo "-------------------------------------"
 
-for i in "\${hosts[@]}"; do
-  HOST_VAR="host\${i}"
-  USER_VAR="user\${i}"
-  PASS_VAR="pass\${i}"
+  echo
+  echo "➡️  Processing host: $HOST"
 
-  HOST=\${!HOST_VAR}
-  USER=\${!USER_VAR}
-  PASS=\${!PASS_VAR}
-
-  OUTPUT=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" session info active 2>/dev/null)
+  # Attempt 1: default cipher
+  echo "   🔐 Retrieving active session info (default cipher)..."
+  OUTPUT=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" \
+           session info active 2>/dev/null)
   if [ $? -eq 0 ]; then
-    echo "Host: $HOST"
+    echo "   ✅ Active session info retrieved (default cipher)"
+    echo "   Host: $HOST"
     echo "$OUTPUT"
-    echo
-  else
-    printf "%-20s : %s\n" "$HOST" "❌ Connection failed"
+    continue
   fi
+  echo "   ❌ Default cipher failed → trying cipher -C 3"
+
+  # Attempt 2: cipher -C 3
+  echo "   🔐 Retrieving active session info (cipher -C 3)..."
+  OUTPUT=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C 3 \
+           session info active 2>/dev/null)
+  if [ $? -eq 0 ]; then
+    echo "   ✅ Active session info retrieved (cipher -C 3)"
+    echo "   Host: $HOST"
+    echo "$OUTPUT"
+    continue
+  fi
+  echo "   ❌ Cipher -C 3 failed → trying cipher -C 2"
+
+  # Attempt 3: cipher -C 2
+  echo "   🔐 Retrieving active session info (cipher -C 2)..."
+  OUTPUT=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C 2 \
+           session info active 2>/dev/null)
+  if [ $? -eq 0 ]; then
+    echo "   ✅ Active session info retrieved (cipher -C 2)"
+    echo "   Host: $HOST"
+    echo "$OUTPUT"
+    continue
+  fi
+
+  # All attempts failed
+  printf "   ❌ %-17s : %s\n" "$HOST" "Failed to retrieve session info (all ciphers)"
 done
 
 echo "-------------------------------------"`;
         }
         function generateResetColdScript() {
-            return `echo "-------------------------------------"
-echo " IPMI Power Status Report"
+            return `
+echo "-------------------------------------"
+echo "IPMI BMC Cold Reset Report"
 echo "-------------------------------------"
 
 for i in "\${hosts[@]}"; do
@@ -974,18 +1208,44 @@ for i in "\${hosts[@]}"; do
   USER=\${!USER_VAR}
   PASS=\${!PASS_VAR}
 
-  OUTPUT=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" mc reset cold 2>/dev/null)
+  echo
+  echo "➡️  Processing host: $HOST"
+
+  # Attempt 1: default cipher
+  echo "   🔐 Trying default cipher..."
+  ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" mc reset cold 2>/dev/null
   if [ $? -eq 0 ]; then
-    printf "%-20s : %s\n" "$HOST" "$OUTPUT"
-  else
-    printf "%-20s : %s\n" "$HOST" "❌ Connection failed"
+    echo "   ✅ Success using default cipher"
+    continue
   fi
+  echo "   ❌ Default cipher failed → trying cipher -C 3"
+
+  # Attempt 2: cipher 3
+  echo "   🔐 Trying cipher -C 3..."
+  ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C 3 mc reset cold 2>/dev/null
+  if [ $? -eq 0 ]; then
+    echo "   ✅ Success using cipher -C 3"
+    continue
+  fi
+  echo "   ❌ Cipher -C 3 failed → trying cipher -C 2"
+
+  # Attempt 3: cipher 2
+  echo "   🔐 Trying cipher -C 2..."
+  ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C 2 mc reset cold 2>/dev/null
+  if [ $? -eq 0 ]; then
+    echo "   ✅ Success using cipher -C 2"
+    continue
+  fi
+
+  # All attempts failed
+  echo "   ❌ All cipher attempts failed for $HOST"
 done
 
 echo "-------------------------------------"`;
         }
         function generateMotherboardInfoLONGScript() {
-            return `echo "-------------------------------------"
+            return `
+echo "-------------------------------------"
 echo " IPMI FRU + MC Info Report"
 echo "-------------------------------------"
 
@@ -998,32 +1258,74 @@ for i in "\${hosts[@]}"; do
   USER=\${!USER_VAR}
   PASS=\${!PASS_VAR}
 
+  echo
   echo "Host: $HOST"
   echo "-----"
 
-  FRU_OUTPUT=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" fru 2>/dev/null)
-  if [ $? -eq 0 ]; then
+  WORKING_CIPHER=""
+  FRU_OUTPUT=""
+
+  ####################################
+  # FRU INFORMATION (detect cipher)
+  ####################################
+  for C in "" 3 2; do
+    if [ -z "$C" ]; then
+      echo "🔐 Retrieving FRU info (default cipher)..."
+      FRU_OUTPUT=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" fru 2>/dev/null)
+    else
+      echo "🔐 Retrieving FRU info (cipher -C $C)..."
+      FRU_OUTPUT=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C "$C" fru 2>/dev/null)
+    fi
+
+    if [ $? -eq 0 ]; then
+      WORKING_CIPHER="$C"
+      break
+    else
+      if [ -z "$C" ]; then
+        echo "❌ Default cipher failed"
+      else
+        echo "❌ Cipher -C $C failed"
+      fi
+    fi
+  done
+
+  if [ -n "$FRU_OUTPUT" ]; then
     echo "[FRU - Motherboard Information]"
     echo "$FRU_OUTPUT"
   else
-    echo "❌ Failed to retrieve FRU info"
+    echo "❌ Failed to retrieve FRU info (all ciphers)"
   fi
 
   echo
 
-  MC_OUTPUT=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" mc info 2>/dev/null)
-  if [ $? -eq 0 ]; then
-    echo "[MC - BMC Controller Information]"
-    echo "$MC_OUTPUT"
+  ####################################
+  # MC INFORMATION (reuse cipher)
+  ####################################
+  if [ -z "$WORKING_CIPHER" ]; then
+    echo "❌ Skipping MC info — no working cipher"
   else
-    echo "❌ Failed to retrieve MC info"
+    if [ -z "$WORKING_CIPHER" ]; then
+      echo "🔐 Retrieving MC info (default cipher)..."
+      MC_OUTPUT=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" mc info 2>/dev/null)
+    else
+      echo "🔐 Retrieving MC info (cipher -C $WORKING_CIPHER)..."
+      MC_OUTPUT=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C "$WORKING_CIPHER" mc info 2>/dev/null)
+    fi
+
+    if [ $? -eq 0 ]; then
+      echo "[MC - BMC Controller Information]"
+      echo "$MC_OUTPUT"
+    else
+      echo "❌ Failed to retrieve MC info using working cipher"
+    fi
   fi
 done
 
 echo "-------------------------------------"`;
         }
         function generateMotherboardInfoSHORTScript() {
-            return `echo "-------------------------------------"
+            return `
+echo "-------------------------------------"
 echo " IPMI FRU + MC Info Report"
 echo "-------------------------------------"
 
@@ -1036,34 +1338,74 @@ for i in "\${hosts[@]}"; do
   USER=\${!USER_VAR}
   PASS=\${!PASS_VAR}
 
+  echo
   echo "Host: $HOST"
   echo "-----"
 
-# FRU fields extraction
-  FRU_DATA=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" fru 2>/dev/null)
-  if [ $? -eq 0 ]; then
-    MFG=$(echo "$FRU_DATA" | awk -F: '/Board Mfg/ {print $2; exit}' | xargs)
-    MODEL=$(echo "$FRU_DATA" | awk -F: '/Board Product/ {print $2; exit}' | xargs)
-  else
+  WORKING_CIPHER=""
+
+  # ------------------------
+  # FRU DATA retrieval with fallback
+  # ------------------------
+  for C in "" 3 2; do
+    if [ -z "$C" ]; then
+      echo "🔐 Trying FRU (default cipher)"
+      FRU_DATA=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" fru 2>/dev/null)
+    else
+      echo "🔐 Trying FRU (cipher -C $C)"
+      FRU_DATA=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C "$C" fru 2>/dev/null)
+    fi
+
+    if [ $? -eq 0 ]; then
+      WORKING_CIPHER="$C"
+      break
+    else
+      if [ -z "$C" ]; then
+        echo "❌ Default cipher failed"
+      else
+        echo "❌ Cipher -C $C failed"
+      fi
+    fi
+  done
+
+  if [ -z "$FRU_DATA" ]; then
+    echo "❌ Failed to retrieve FRU info (all ciphers)"
     MFG="Unknown"
     MODEL="Unknown"
-  fi
-
-  # MC info extraction
-  MC_DATA=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" mc info 2>/dev/null)
-  if [ $? -eq 0 ]; then
-    FW=$(echo "$MC_DATA" | awk -F: '/Firmware Revision/ {print $2; exit}' | xargs)
   else
-    FW="Unknown"
+    MFG=$(echo "$FRU_DATA" | awk -F: '/Board Mfg/ {print $2; exit}' | xargs)
+    MODEL=$(echo "$FRU_DATA" | awk -F: '/Board Product/ {print $2; exit}' | xargs)
   fi
 
-  printf "%-15s : %-20s : BMC FW %s\n" '$HOST' "$MFG $MODEL" "$FW"
+  # ------------------------
+  # MC DATA retrieval (reuse working cipher)
+  # ------------------------
+  if [ -z "$WORKING_CIPHER" ]; then
+    echo "❌ Skipping MC info — no working cipher"
+    FW="Unknown"
+  else
+    if [ -z "$WORKING_CIPHER" ]; then
+      MC_DATA=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" mc info 2>/dev/null)
+    else
+      MC_DATA=$(ipmitool -I lanplus -H "$HOST" -U "$USER" -P "$PASS" -C "$WORKING_CIPHER" mc info 2>/dev/null)
+    fi
+
+    if [ $? -eq 0 ]; then
+      FW=$(echo "$MC_DATA" | awk -F: '/Firmware Revision/ {print $2; exit}' | xargs)
+    else
+      echo "❌ MC info failed even with working cipher"
+      FW="Unknown"
+    fi
+  fi
+
+  printf "%-15s : %-20s : BMC FW %s\n" "$HOST" "$MFG $MODEL" "$FW"
 done
 
 echo "-------------------------------------"`;
         }
         function generateAsRockUserScript() {
-            return `echo "-------------------------------------"
+            return `
+echo "-------------------------------------"
 echo " AsRock Create User Script"
 echo "-------------------------------------"
 
@@ -1139,7 +1481,8 @@ echo "Completed"
 echo "-------------------------------------"`;
         }
         function generateDellUserScript() {
-            return `echo "-------------------------------------"
+            return `
+echo "-------------------------------------"
 echo " Dell Create User Script"
 echo "-------------------------------------"
 
@@ -1203,7 +1546,8 @@ echo "Completed"
 echo "-------------------------------------"`;
         }
         function generateSuperMicroUserScript() {
-            return `echo "-------------------------------------"
+            return `
+echo "-------------------------------------"
 echo " SuperMicro Create User Script"
 echo "-------------------------------------"
 
@@ -1282,39 +1626,61 @@ echo "-------------------------------------"`;
             });
         }
 
-        function clearAll() {
-            // Reset selected option
-            selectedOption = null;
-            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-            
-            // Reset to single host row
-            const container = document.getElementById('hosts-container');
-            container.innerHTML = `
-                <div class="host-row normal">
-                    <span class="device-number">1</span>
-                    <input type="text" class="host-ip" placeholder="8.8.8.8">
-                    <input type="text" class="username" placeholder="root">
-                    <input type="text" class="password" placeholder="calvin">
-                    <input type="text" class="new-password hidden" placeholder="NEW Password">
-                    <button class="add-btn" onclick="addHost()">+</button>
-                </div>
-            `;
-            
-            // Reset labels
-            const labelsRow = document.getElementById('labels-row');
-            labelsRow.className = 'labels-row normal';
-            labelsRow.innerHTML = `
-                <label>Host IP</label>
-                <label>Username</label>
-                <label>Password</label>
-                <label></label>
-            `;
-            renumberHosts();
-            // Clear output
-            const output = document.getElementById('output');
-            output.textContent = '';
-            output.classList.remove('show');
-        }
+        function toggleMirrorUsernames() {
+            const checkbox = document.getElementById('mirror-usernames');
+            const usernames = document.querySelectorAll('.username');
+
+            if (!usernames.length) return;
+
+                const primaryValue = usernames[0].value;
+
+            if (checkbox.checked) {
+        // Mirror device 1 username to all others
+                usernames.forEach((input, index) => {
+            if (index !== 0) {
+                input.value = primaryValue;
+            }
+        });
+    } else {
+        // Clear usernames from device 2 onward
+        usernames.forEach((input, index) => {
+            if (index !== 0) {
+                input.value = '';
+            }
+        });
+    }
+}
+function clearAll() {
+    // Reset selected option
+    selectedOption = null;
+    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    
+    // Reset to single host row
+    const container = document.getElementById('hosts-container');
+    container.innerHTML = `
+        <div class="host-row normal">
+            <span class="device-number">1</span>
+            <input type="text" class="host-ip" placeholder="8.8.8.8">
+            <input type="text" class="username" placeholder="root">
+            <input type="text" class="password" placeholder="calvin">
+            <input type="text" class="new-password hidden" placeholder="NEW Password">
+            <button class="add-btn" onclick="addHost()">+</button>
+        </div>
+    `;
+    renumberHosts();
+
+    // Uncheck the mirror usernames checkbox
+    const checkbox = document.getElementById('mirror-usernames');
+    if (checkbox) checkbox.checked = false;
+
+    // Clear all username inputs explicitly (clears mirrored usernames)
+    document.querySelectorAll('.username').forEach(input => input.value = '');
+
+    // Clear output
+    const output = document.getElementById('output');
+    output.textContent = '';
+    output.classList.remove('show');
+}
     </script>
 </body>
 </html>
