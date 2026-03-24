@@ -9,20 +9,271 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+            padding-top: 70px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
                 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
                 sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%, #0a0a0a 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
         }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(60, 60, 60, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(80, 80, 80, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .header-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(100, 100, 100, 0.3);
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            flex-wrap: wrap;
+        }
+        
+        .header-menu a {
+            padding: 0.6rem 1rem;
+            background: linear-gradient(135deg, rgba(80, 80, 80, 0.2), rgba(60, 60, 60, 0.15));
+            color: #c0c0c0;
+            text-decoration: none;
+            border: 1px solid rgba(100, 100, 100, 0.3);
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+        }
+        
+        .header-menu a:hover {
+            background: linear-gradient(135deg, rgba(100, 100, 100, 0.3), rgba(80, 80, 80, 0.25));
+            border-color: rgba(120, 120, 120, 0.5);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(80, 80, 80, 0.3);
+        }
+
         code {
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+        }
+
+        /* Custom Tailwind overrides */
+        .bg-gray-50 {
+            background: transparent !important;
+        }
+
+        .bg-white {
+            background: linear-gradient(145deg, #1f1f1f 0%, #2a2a2a 100%) !important;
+            border: 1px solid rgba(100, 100, 100, 0.2) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .bg-gray-200 {
+            background: linear-gradient(135deg, #2a2a2a 0%, #353535 100%) !important;
+        }
+
+        .border-gray-200 {
+            border-color: rgba(100, 100, 100, 0.3) !important;
+        }
+
+        .text-black {
+            color: #ffffff !important;
+            background: linear-gradient(135deg, #ffffff 0%, #d0d0d0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .text-gray-600 {
+            color: #b0b0b0 !important;
+        }
+
+        .text-gray-500 {
+            color: #909090 !important;
+        }
+
+        .text-gray-700 {
+            color: #c0c0c0 !important;
+        }
+
+        .text-gray-800 {
+            color: #e0e0e0 !important;
+        }
+
+        .text-gray-400 {
+            color: #808080 !important;
+        }
+
+        .bg-black {
+            background: linear-gradient(135deg, #c9a430 0%, #b89620 100%) !important;
+            box-shadow: 0 4px 16px rgba(201, 164, 48, 0.3) !important;
+        }
+
+        .bg-black:hover {
+            background: linear-gradient(135deg, #d4ae3a 0%, #c2a025 100%) !important;
+            box-shadow: 0 6px 20px rgba(201, 164, 48, 0.4) !important;
+        }
+
+        .bg-gray-100 {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%) !important;
+        }
+
+        .bg-gray-800 {
+            background: linear-gradient(135deg, #d4ae3a 0%, #c2a025 100%) !important;
+        }
+
+        .bg-gray-50 {
+            background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%) !important;
+        }
+
+        .border-black {
+            border-color: rgba(201, 164, 48, 0.5) !important;
+        }
+
+        .focus\:border-black:focus {
+            border-color: #c9a430 !important;
+            box-shadow: 0 0 0 3px rgba(201, 164, 48, 0.15) !important;
+        }
+
+        input {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%) !important;
+            color: #e0e0e0 !important;
+            border: 1px solid rgba(100, 100, 100, 0.3) !important;
+        }
+
+        input::placeholder {
+            color: #707070 !important;
+        }
+
+        input:focus {
+            background: linear-gradient(135deg, #141414 0%, #1f1f1f 100%) !important;
+        }
+
+        textarea {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%) !important;
+            color: #e0e0e0 !important;
+            border: 1px solid rgba(100, 100, 100, 0.3) !important;
+        }
+
+        textarea::placeholder {
+            color: #707070 !important;
+        }
+
+        textarea:focus {
+            background: linear-gradient(135deg, #141414 0%, #1f1f1f 100%) !important;
+            border-color: #c9a430 !important;
+            box-shadow: 0 0 0 3px rgba(201, 164, 48, 0.15) !important;
+        }
+
+        button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .hover\:bg-gray-100:hover {
+            background: linear-gradient(135deg, #252525 0%, #303030 100%) !important;
+        }
+
+        .hover\:text-black:hover {
+            color: #c9a430 !important;
+        }
+
+        .hover\:bg-gray-300:hover {
+            background: linear-gradient(135deg, #353535 0%, #404040 100%) !important;
+        }
+
+        /* Category badge styling */
+        .bg-gray-200.text-gray-700 {
+            background: linear-gradient(135deg, rgba(201, 164, 48, 0.2), rgba(184, 150, 32, 0.15)) !important;
+            color: #d4ae3a !important;
+            border: 1px solid rgba(201, 164, 48, 0.3);
+        }
+
+        /* Code block styling */
+        pre {
+            background: linear-gradient(135deg, #0a0a0a 0%, #141414 100%) !important;
+            border: 1px solid rgba(100, 100, 100, 0.3) !important;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        pre code {
+            color: #d4ae3a !important;
+            font-weight: 500;
+        }
+
+        /* Card hover effects */
+        .hover\:shadow-lg:hover {
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
+            transform: translateY(-4px) !important;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f0f0f;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
+            border-radius: 10px;
+            border: 2px solid #0f0f0f;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 120px;
+            }
+
+            .header-menu a {
+                flex: 1 1 calc(50% - 0.25rem);
+                min-width: 120px;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="header-menu">
+        <a href="https://app.rei-deploy.store/network_configuration_generator.html" target="_blank">Network Config Generator</a>
+        <a href="https://app.rei-deploy.store/ipmitool_script_generator.html" target="_blank">IPMITool Script Generator</a>
+        <a href="https://app.rei-deploy.store/Juniper_Wildcard_Command_Generator.html" target="_blank">Juniper Wildcard Generator</a>
+    </div>
+
     <div id="root"></div>
 
     <script type="text/babel">
@@ -150,7 +401,7 @@
                 {
                     id: 'linux-managed',
                     title: 'Linux Managed Services',
-                    description: 'Basic managed services installation for Linux systems',
+                    description: 'Add managed services to a Linux server',
                     category: 'Managed Services',
                     steps: [
                         {
@@ -162,187 +413,83 @@
                             description: 'Download the managed services installation script and make it executable'
                         },
                         {
-                            title: 'Run basic installation',
-                            commands: ['./managed3.0_install.sh -t basic'],
-                            description: 'Install basic managed services for Linux systems without a control panel.'
+                            title: 'Install managed services for Linux',
+                            commands: ['./managed3.0_install.sh -t linux'],
+                            description: 'Installs managed services + csf for standard Linux servers.'
                         }
                     ]
                 },
                 // ========================================
-                // softaculous-install
+                // debian-11-to-proxmox-8
                 // ========================================
                 {
-                    id: 'softaculous-install',
-                    title: 'Softaculous Installation',
-                    description: 'Install Softaculous auto-installer plugin for cPanel/WHM',
-                    category: 'Control Panels',
-                    steps: [
-                        {
-                            title: 'Set cPanel PHP loader to IonCube',
-                            description: 'In WHM, navigate to: Main >> Server Configuration >> Tweak Settings >> PHP and set the cPanel PHP loader to IonCube',
-                            commands: []
-                        },
-                        {
-                            title: 'Download and run Softaculous installer',
-                            commands: [
-                                'wget -N http://files.softaculous.com/install.sh',
-                                'chmod 755 install.sh',
-                                './install.sh'
-                            ],
-                            description: 'This will install and register the Softaculous plugin with your license'
-                        },
-                        {
-                            title: 'Verify installation in WHM',
-                            description: 'Navigate to: WHM > Plugins (Add-Ons on older versions) > Softaculous - Instant Installs. You should see the Softaculous interface if installation was successful.',
-                            commands: []
-                        },
-                        {
-                            title: 'Important notes',
-                            description: 'If using suPHP or suexec, refer to: http://www.softaculous.com/docs/SuPHP_Settings. You can import Fantastico scripts via the Import tab in Softaculous.',
-                            commands: []
-                        }
-                    ]
-                },
-                // ========================================
-                // debian-11-to-proxmox-9
-                // ========================================
-                {
-                    id: 'debian-11-to-proxmox-9',
-                    title: 'Debian 11 to Proxmox 9 Upgrade',
-                    description: 'Complete upgrade path from Debian 11 (Bullseye) to Proxmox VE 9',
+                    id: 'debian-11-to-proxmox-8',
+                    title: 'Debian 11 to Proxmox 8',
+                    description: 'Convert Debian 11 to Proxmox VE 8',
                     category: 'Virtualization',
                     steps: [
                         {
-                            title: 'Update and upgrade current Debian 11',
+                            title: 'Add Proxmox repository',
                             commands: [
-                                'apt update && apt upgrade -y',
-                                'apt full-upgrade -y',
-                                'reboot'
+                                'echo "deb [arch=amd64] http://download.proxmox.com/debian/pve bullseye pve-no-subscription" > /etc/apt/sources.list.d/pve-install-repo.list',
+                                'wget https://enterprise.proxmox.com/debian/proxmox-release-bullseye.gpg -O /etc/apt/trusted.gpg.d/proxmox-release-bullseye.gpg',
+                                'apt update && apt full-upgrade'
                             ],
-                            description: 'Ensure Debian 11 is fully updated before upgrading'
+                            description: 'Add the Proxmox VE repository to your Debian system'
                         },
                         {
-                            title: 'Adjust APT sources for Bookworm',
+                            title: 'Install Proxmox VE',
                             commands: [
-                                "sed -i 's/bullseye/bookworm/g' /etc/apt/sources.list"
+                                'apt install proxmox-ve postfix open-iscsi chrony'
                             ],
-                            description: 'Update repository sources to Debian 12 (Bookworm)'
+                            description: 'Install Proxmox VE and required packages'
                         },
                         {
-                            title: 'Update package lists & perform the release upgrade',
+                            title: 'Reboot and verify',
                             commands: [
-                                'apt update',
-                                'apt full-upgrade -y',
-                                'reboot'
-                            ],
-                            description: 'Upgrade to Debian 12'
-                        },
-                        {
-                            title: 'Verify Debian 12',
-                            commands: [
-                                'lsb_release -a'
-                            ],
-                            description: 'Confirm you are running Debian 12 before proceeding'
-                        },
-                        {
-                            title: 'Update & upgrade current Debian 12',
-                            commands: [
-                                'apt update && apt upgrade -y',
-                                'apt full-upgrade -y',
-                                'reboot'
-                            ],
-                            description: 'Ensure Debian 12 is fully updated before upgrading to Debian 13'
-                        },
-                        {
-                            title: 'Adjust APT sources for Trixie',
-                            commands: [
-                                "sed -i 's/bookworm/trixie/g' /etc/apt/sources.list"
-                            ],
-                            description: 'Update repository sources to Debian 13 (Trixie)'
-                        },
-                        {
-                            title: 'Update package lists & perform the release upgrade',
-                            commands: [
-                                'apt update',
-                                'apt full-upgrade -y',
-                                'reboot'
-                            ],
-                            description: 'Upgrade to Debian 13'
-                        },
-                        {
-                            title: 'Verify Debian 13',
-                            commands: [
-                                'lsb_release -a'
-                            ],
-                            description: 'Confirm you are running Debian 13 before installing Proxmox'
-                        },
-                        {
-                            title: 'Add the Proxmox VE 9 repository',
-                            commands: [
-                                'cat <<EOF | tee /etc/apt/sources.list.d/pve-install-repo.list\ndeb [signed-by=/usr/share/keyrings/proxmox-archive-keyring.gpg] http://download.proxmox.com/debian/pve trixie pve-no-subscription\nEOF'
-                            ],
-                            description: 'Add the Proxmox VE 9 repository to your system'
-                        },
-                        {
-                            title: 'Download the Proxmox archive key for Debian 13',
-                            commands: [
-                                'wget https://enterprise.proxmox.com/debian/proxmox-release-trixie.gpg -O /usr/share/keyrings/proxmox-archive-keyring.gpg'
-                            ],
-                            description: 'Download and install the GPG key for package verification'
-                        },
-                        {
-                            title: 'Verify repository configuration (CRITICAL)',
-                            commands: [
-                                'cat /etc/apt/sources.list.d/pve-install-repo.list'
-                            ],
-                            description: 'It MUST be exactly: deb [signed-by=/usr/share/keyrings/proxmox-archive-keyring.gpg] http://download.proxmox.com/debian/pve trixie pve-no-subscription. If not correct, fix it with the command below.'
-                        },
-                        {
-                            title: 'Fix repository if needed',
-                            commands: [
-                                'echo "deb [signed-by=/usr/share/keyrings/proxmox-archive-keyring.gpg] http://download.proxmox.com/debian/pve trixie pve-no-subscription" > /etc/apt/sources.list.d/pve-install-repo.list'
-                            ],
-                            description: 'Only run this if the previous verification showed incorrect format'
-                        },
-                        {
-                            title: 'Update & install Proxmox VE packages',
-                            commands: [
-                                'apt update',
-                                'apt install proxmox-ve postfix open-iscsi -y'
-                            ],
-                            description: 'Install Proxmox VE, Postfix mail server, and iSCSI initiator'
-                        },
-                        {
-                            title: 'Reboot into the Proxmox kernel',
-                            commands: [
-                                'reboot'
-                            ],
-                            description: 'Reboot to load the Proxmox kernel'
-                        },
-                        {
-                            title: 'Verify Proxmox installation',
-                            commands: [
+                                'systemctl reboot',
                                 'pveversion'
                             ],
-                            description: 'Confirm Proxmox VE 9 is installed and running'
+                            description: 'Reboot the system and verify Proxmox installation'
                         }
                     ]
                 },
+                // ========================================
+                // debian-12-to-proxmox-9
+                // ========================================
                 {
-                    id: 'proxmox-bond',
-                    title: 'Proxmox Double Bond Setup',
-                    description: 'Configure network bonding for Proxmox installations',
+                    id: 'debian-12-to-proxmox-9',
+                    title: 'Debian 12 to Proxmox 9',
+                    description: 'Convert Debian 12 to Proxmox VE 9',
                     category: 'Virtualization',
-                    comingSoon: true,
-                    steps: []
+                    steps: [
+                        {
+                            title: 'Add Proxmox repository',
+                            commands: [
+                                'echo "deb [arch=amd64] http://download.proxmox.com/debian/pve bookworm pve-no-subscription" > /etc/apt/sources.list.d/pve-install-repo.list',
+                                'wget https://enterprise.proxmox.com/debian/proxmox-release-bookworm.gpg -O /etc/apt/trusted.gpg.d/proxmox-release-bookworm.gpg',
+                                'apt update && apt full-upgrade'
+                            ],
+                            description: 'Add the Proxmox VE repository to your Debian system'
+                        },
+                        {
+                            title: 'Install Proxmox VE',
+                            commands: [
+                                'apt install proxmox-ve postfix open-iscsi chrony'
+                            ],
+                            description: 'Install Proxmox VE and required packages'
+                        },
+                        {
+                            title: 'Reboot and verify',
+                            commands: [
+                                'systemctl reboot',
+                                'pveversion'
+                            ],
+                            description: 'Reboot the system and verify Proxmox installation'
+                        }
+                    ]
                 }
             ];
-
-            const copyToClipboard = (text, id) => {
-                navigator.clipboard.writeText(text);
-                setCopiedCommand(id);
-                setTimeout(() => setCopiedCommand(null), 2000);
-            };
 
             const filteredGuides = guides.filter(guide =>
                 guide.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -350,130 +497,112 @@
                 guide.category.toLowerCase().includes(searchQuery.toLowerCase())
             );
 
-            const GuideCard = ({ guide }) => (
-                <div
-                    onClick={() => !guide.comingSoon && setSelectedGuide(guide)}
-                    className={`bg-white border-2 border-gray-200 rounded-lg p-6 transition-all duration-200 ${
-                        guide.comingSoon
-                            ? 'opacity-50 cursor-not-allowed'
-                            : 'hover:border-black hover:shadow-lg cursor-pointer'
-                    }`}
-                >
-                    <div className="flex justify-between items-start mb-3">
-                        <h3 className="text-xl font-bold text-black">{guide.title}</h3>
-                        {guide.comingSoon && (
-                            <span className="bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1 rounded-full">
-                                Coming Soon
-                            </span>
+            const copyToClipboard = async (text, id) => {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    setCopiedCommand(id);
+                    setTimeout(() => setCopiedCommand(null), 2000);
+                } catch (err) {
+                    console.error('Failed to copy:', err);
+                }
+            };
+
+            const CommandBlock = ({ command, id }) => (
+                <div className="relative group">
+                    <pre className="bg-gray-100 border-2 border-gray-200 rounded-lg p-4 pr-14 overflow-x-auto">
+                        <code className="text-sm">{command}</code>
+                    </pre>
+                    <button
+                        onClick={() => copyToClipboard(command, id)}
+                        className="absolute top-3 right-3 p-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+                        title="Copy to clipboard"
+                    >
+                        {copiedCommand === id ? (
+                            <Check size={16} className="text-green-600" />
+                        ) : (
+                            <Copy size={16} className="text-gray-600" />
                         )}
-                    </div>
-                    <p className="text-gray-600 mb-3">{guide.description}</p>
-                    <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-500 font-medium">{guide.category}</span>
-                        {!guide.comingSoon && (
-                            <ChevronRight size={20} className="text-gray-400" />
-                        )}
-                    </div>
+                    </button>
                 </div>
             );
 
-            const CommandBlock = ({ command, id }) => (
-                <div className="relative bg-gray-900 text-gray-100 rounded-md p-4 font-mono text-sm mb-2 group">
-                    <code className="block overflow-x-auto">{command}</code>
-                    <button
-                        onClick={() => copyToClipboard(command, id)}
-                        className="absolute top-2 right-2 p-2 bg-gray-800 hover:bg-gray-700 rounded transition-colors opacity-0 group-hover:opacity-100"
-                    >
-                        {copiedCommand === id ? (
-                            <Check size={16} className="text-green-400" />
-                        ) : (
-                            <Copy size={16} className="text-gray-400" />
-                        )}
-                    </button>
+            const GuideCard = ({ guide }) => (
+                <div
+                    onClick={() => setSelectedGuide(guide)}
+                    className="bg-white border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:shadow-lg transition-all"
+                >
+                    <div className="flex items-start justify-between mb-3">
+                        <span className="inline-block bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1 rounded-full">
+                            {guide.category}
+                        </span>
+                        <ChevronRight size={20} className="text-gray-400" />
+                    </div>
+                    <h3 className="text-xl font-bold text-black mb-2">{guide.title}</h3>
+                    <p className="text-gray-600 text-sm">{guide.description}</p>
                 </div>
             );
 
             const SuggestionForm = () => {
                 const [formData, setFormData] = useState({
                     title: '',
-                    category: '',
                     description: '',
-                    steps: ''
+                    email: ''
                 });
 
                 const handleSubmit = (e) => {
                     e.preventDefault();
-                    // TODO: Integrate with your backend/queue system
-                    console.log('Suggestion submitted:', formData);
-                    alert('Thank you for your suggestion! It will be reviewed soon.');
+                    const mailtoLink = `mailto:support@hivelocity.net?subject=Installation Guide Suggestion: ${encodeURIComponent(formData.title)}&body=${encodeURIComponent(`Description: ${formData.description}\n\nSubmitted by: ${formData.email}`)}`;
+                    window.location.href = mailtoLink;
                     setShowSuggestionForm(false);
-                    setFormData({ title: '', category: '', description: '', steps: '' });
+                    setFormData({ title: '', description: '', email: '' });
                 };
 
                 return (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-2xl font-bold text-black">Suggest a Guide</h2>
-                                <button
-                                    onClick={() => setShowSuggestionForm(false)}
-                                    className="text-gray-500 hover:text-black text-2xl"
-                                >
-                                    ×
-                                </button>
-                            </div>
+                        <div className="bg-white rounded-lg max-w-md w-full p-6">
+                            <h2 className="text-2xl font-bold text-black mb-4">
+                                Suggest a Guide
+                            </h2>
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Guide Title *
+                                        Guide Title
                                     </label>
                                     <input
                                         type="text"
                                         required
                                         value={formData.title}
-                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                        className="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-black focus:outline-none"
-                                        placeholder="e.g., Proxmox VE Installation"
+                                        onChange={(e) => setFormData({...formData, title: e.target.value})}
+                                        className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none"
+                                        placeholder="e.g., Docker Installation on Ubuntu 22.04"
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Category *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={formData.category}
-                                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                        className="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-black focus:outline-none"
-                                        placeholder="e.g., Virtualization, Control Panels, Managed Services"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Description *
+                                        Description
                                     </label>
                                     <textarea
                                         required
                                         value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        className="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-black focus:outline-none h-24"
-                                        placeholder="Brief description of what this guide covers"
+                                        onChange={(e) => setFormData({...formData, description: e.target.value})}
+                                        className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none"
+                                        rows="4"
+                                        placeholder="Describe what this guide should cover..."
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Installation Steps *
+                                        Your Email (optional)
                                     </label>
-                                    <textarea
-                                        required
-                                        value={formData.steps}
-                                        onChange={(e) => setFormData({ ...formData, steps: e.target.value })}
-                                        className="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-black focus:outline-none h-40"
-                                        placeholder="List the commands and steps needed for this installation..."
+                                    <input
+                                        type="email"
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                        className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none"
+                                        placeholder="your@email.com"
                                     />
                                 </div>
-                                <div className="flex gap-3 pt-4">
+                                <div className="flex gap-3 pt-2">
                                     <button
                                         type="submit"
                                         className="flex-1 bg-black text-white py-3 rounded-md font-semibold hover:bg-gray-800 transition-colors"
